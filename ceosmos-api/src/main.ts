@@ -8,7 +8,20 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: false, // CSP is handled by Vercel headers
+      crossOriginEmbedderPolicy: false,
+      hsts: {
+        maxAge: 63072000,
+        includeSubDomains: true,
+        preload: true,
+      },
+      frameguard: { action: 'deny' },
+      noSniff: true,
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    })
+  );
   app.use(cookieParser());
 
   console.log('FRONTEND_ORIGIN:', process.env.FRONTEND_ORIGIN);
@@ -37,6 +50,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
+      forbidNonWhitelisted: true,
       transform: true,
     }),
   );

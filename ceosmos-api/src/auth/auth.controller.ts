@@ -8,7 +8,6 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -33,7 +32,6 @@ const COOKIE_OPTIONS = {
 };
 
 @Controller('auth')
-@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
