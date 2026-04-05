@@ -45,14 +45,23 @@ export class AuthService {
     try {
       await firstValueFrom(this.http.post(`${this.apiUrl}/auth/logout`, {}));
     } finally {
-      localStorage.clear();
       this.setUser(null);
       this.router.navigate(['/login']);
     }
   }
 
+  async checkAuth(): Promise<boolean> {
+    if (this.isAuthenticated()) return true;
+    try {
+      await this.getMe();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   // --- API Authentication Methods ---
-  
+
   async getMe(): Promise<UserProfile> {
     const user = await firstValueFrom(this.http.get<UserProfile>(`${this.apiUrl}/users/me`));
     this.setUser(user);
@@ -73,10 +82,7 @@ export class AuthService {
 
   async login(data: any): Promise<any> {
     const response: any = await firstValueFrom(this.http.post(`${this.apiUrl}/auth/login`, data));
-    if (response && response.token) {
-      localStorage.setItem('token', response.token);
-    }
-    // Following successful login, get the user profile to populate state
+    // Cookie is set automatically by the backend response
     await this.getMe();
     return response;
   }
@@ -95,9 +101,7 @@ export class AuthService {
 
   async webAuthnLoginVerify(data: any): Promise<any> {
     const response: any = await firstValueFrom(this.http.post(`${this.apiUrl}/auth/webauthn/login/verify`, data));
-    if (response && response.token) {
-      localStorage.setItem('token', response.token);
-    }
+    // Cookie is set automatically by the backend response
     await this.getMe();
     return response;
   }

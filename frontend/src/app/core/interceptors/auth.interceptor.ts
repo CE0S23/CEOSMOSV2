@@ -1,9 +1,9 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { environment } from '../../../environments/environment';
+import { catchError, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -12,23 +12,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isApiUrl = req.url.startsWith('/') || !req.url.startsWith('http');
   const targetUrl = isApiUrl ? `${environment.apiUrl}${req.url.startsWith('/') ? '' : '/'}${req.url}` : req.url;
 
-  const token = localStorage.getItem('token');
-
-  let authReq = req.clone({
+  const authReq = req.clone({
     url: targetUrl,
-    withCredentials: true
+    withCredentials: true,
   });
-
-  if (token) {
-    authReq = authReq.clone({
-      headers: authReq.headers.set('Authorization', `Bearer ${token}`)
-    });
-  }
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !req.url.includes('/auth/login')) {
-        localStorage.clear();
+      if (error.status === 401 && !req.url.includes('/auth/login') && !req.url.includes('/users/me')) {
         authService.setAuthenticated(false);
         router.navigate(['/login']);
       }
