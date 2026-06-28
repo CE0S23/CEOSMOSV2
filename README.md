@@ -242,6 +242,92 @@ WEBANGULAR/
 - Media queries para adaptación móvil
 - Diseño fluido y adaptable
 
+
+---
+
+## 🌐 Guía de Configuración y Despliegue
+
+Para volver a desplegar el ecosistema completo de CEOSMOS en producción (o configurarlo en local) sin contratiempos, sigue detalladamente los pasos descritos a continuación:
+
+### 1. Base de Datos (Neon PostgreSQL)
+
+Neon provee una base de datos PostgreSQL Serverless. En proyectos que usan ORMs como Prisma, requerimos dos URLs de conexión diferentes: una con "pooling" (para consultas rápidas del servidor) y otra de conexión directa (para migraciones).
+
+1. **Crear Proyecto en Neon**: Crea una cuenta en [Neon.tech](https://neon.tech/) y un nuevo proyecto con PostgreSQL (se recomienda versión 15 o superior).
+2. **Obtener credenciales**:
+   - En la consola de Neon, ve al dashboard y busca la sección **Connection String**.
+   - **DATABASE_URL (Connection Pooling)**: Asegúrate de tener activada la opción **Pooled connection** (agrega el puerto `5432` o `-pooler` en el host). Esta URL gestiona las conexiones simultáneas del backend en producción.
+     * Ejemplo: `postgresql://usuario:password@ep-host-name-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require`
+   - **DIRECT_URL (Conexión Directa)**: Desactiva **Pooled connection** para obtener la conexión directa al nodo. Esta es necesaria para ejecutar migraciones y empujar esquemas sin que el pooler interfiera.
+     * Ejemplo: `postgresql://usuario:password@ep-host-name.us-east-1.aws.neon.tech/neondb?sslmode=require`
+3. **Sincronización local con Prisma**:
+   - Ubícate en la carpeta `ceosmos-api/` y ejecuta:
+     ```bash
+     npx prisma generate
+     npx prisma db push
+     ```
+     *(Esto creará las tablas necesarias en la base de datos de Neon de forma directa sin necesidad de ejecutar migraciones complejas desde cero)*.
+
+---
+
+### 2. Servicio de Correos (Resend y Verificación de Dominio)
+
+El backend de CEOSMOS utiliza **Resend** como su proveedor de envío de correos electrónicos (para códigos de verificación de cuentas, inicio de sesión y recuperación de contraseña).
+
+1. **Crear Cuenta en Resend**: Regístrate en [Resend.com](https://resend.com) y genera una **API Key** desde la sección *API Keys*.
+2. **Configuración de Dominio para Producción (Crucial para correos de verificación)**:
+   - **Modo Sandbox (Pruebas)**: Por defecto, Resend te restringe a enviar correos únicamente a la dirección de correo con la que te registraste, utilizando el remitente `onboarding@resend.dev`.
+   - **Modo Producción (Envío General)**: Para que cualquier usuario pueda registrarse y recibir correos de verificación en su propia bandeja de entrada, debes verificar tu propio dominio:
+     1. En la consola de Resend, ve a **Domains** > **Add Domain**.
+     2. Ingresa tu dominio propio (ejemplo: `tudominio.com`).
+     3. Resend te proporcionará 3 registros DNS de tipo **TXT** y **MX** (DKIM y SPF).
+     4. Agrega estos registros en el panel de control de tu proveedor de dominio (Namecheap, GoDaddy, Cloudflare, etc.).
+     5. Una vez verificado (puede tardar de unos minutos a 24 horas), podrás enviar correos desde cualquier dirección de tu dominio, por ejemplo: `CEOSMOS <no-reply@tudominio.com>`.
+3. **Variables a configurar**:
+   - `RESEND_API_KEY`: La clave de API generada (`re_xxxxxxxxx`).
+   - `RESEND_FROM_EMAIL`: `CEOSMOS <no-reply@tudominio.com>` (producción) o `CEOSMOS <onboarding@resend.dev>` (pruebas limitado a tu propio correo).
+
+---
+
+### 3. Backend (Despliegue en Railway)
+
+El backend es una aplicación NestJS que se encuentra en la carpeta `ceosmos-api/`.
+
+1. **Crear Servicio en Railway**:
+   - En tu panel de Railway, añade un nuevo servicio apuntando a tu repositorio de GitHub y selecciona el directorio root del backend (`ceosmos-api`).
+   - Railway detectará el archivo [`railway.json`](file:///c:/Users/cesar/OneDrive/Escritorio/8°/DesarrolloWEB/WEBANGULAR/ceosmos-api/railway.json) automáticamente para compilar y arrancar la aplicación usando Nixpacks.
+2. **Variables de Entorno en Railway**:
+   Agrega las siguientes variables en la pestaña **Variables** del servicio de Railway:
+   - `DATABASE_URL`: Tu URL con pooling de Neon (`postgresql://...-pooler...`).
+   - `DIRECT_URL`: Tu URL de conexión directa de Neon (`postgresql://...`).
+   - `FRONTEND_ORIGIN`: La URL final de tu aplicación frontend en Vercel (ejemplo: `https://ceosmos-app.vercel.app`).
+   - `RP_ID`: El dominio de tu frontend en Vercel sin protocolo (ejemplo: `ceosmos-app.vercel.app`). Esto es fundamental para la autenticación sin contraseña (WebAuthn).
+   - `RP_NAME`: `CEOSMOS`
+   - `JWT_SECRET`: Una cadena de texto larga y segura para firmar los tokens JWT (puedes generarla localmente ejecutando `openssl rand -hex 32` en tu terminal).
+   - `RESEND_API_KEY`: Tu API Key de Resend.
+   - `RESEND_FROM_EMAIL`: El remitente verificado (ejemplo: `CEOSMOS <no-reply@tudominio.com>`).
+   - *(Opcional)* `PORT`: **No definir**. Railway inyecta esta variable de entorno de forma automática y el backend está configurado para escuchar dinámicamente en el puerto asignado.
+
+---
+
+### 4. Frontend (Despliegue en Vercel)
+
+El frontend es una aplicación de Angular 18 ubicada en la carpeta `frontend/`.
+
+1. **Crear Proyecto en Vercel**:
+   - En el dashboard de Vercel, importa tu repositorio de GitHub.
+   - Configura la **Root Directory** seleccionando la carpeta `frontend`.
+   - **Framework Preset**: Selecciona `Angular`.
+   - **Build Command**: `npm run build` o `ng build`.
+   - **Output Directory**: Vercel detectará por defecto `dist/ceosmos-app` gracias a la configuración en [`vercel.json`](file:///c:/Users/cesar/OneDrive/Escritorio/8°/DesarrolloWEB/WEBANGULAR/frontend/vercel.json).
+2. **Modificación de Cabeceras de Seguridad (CSP - Muy Importante)**:
+   - Para evitar brechas de seguridad y cumplir con las políticas del navegador, el frontend implementa Content Security Policy (CSP).
+   - En [`frontend/vercel.json`](file:///c:/Users/cesar/OneDrive/Escritorio/8°/DesarrolloWEB/WEBANGULAR/frontend/vercel.json), localiza la regla `connect-src`:
+     ```json
+     "connect-src 'self' https://ceosmos-production.up.railway.app;"
+     ```
+     **Nota crítica**: Si la URL de tu backend de Railway cambia al volver a desplegarlo, **debes actualizar esta URL en `vercel.json`** antes de redesplegar el frontend en Vercel. De lo contrario, el navegador bloqueará todas las peticiones a la API del backend debido a la directiva de seguridad.
+
 ---
 
 ##  Principios de Diseño
