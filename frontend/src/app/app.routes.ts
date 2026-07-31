@@ -48,6 +48,12 @@ export const APP_ROUTES: Routes = [
     canActivate: [adminGuard],
   },
   {
+    path: 'practicas/layout',
+    loadComponent: () =>
+      import('./practicas/layout-showcase/layout-showcase.component').then(m => m.LayoutShowcaseComponent),
+    title: 'CEOSmos - Practicas: Layout',
+  },
+  {
     path: '**',
     redirectTo: 'home',
   },

@@ -1,0 +1,367 @@
+.showcase-page {
+  min-height: 100vh;
+  padding: 40px 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-top: calc(80px + 40px);
+}
+
+.showcase-header {
+  text-align: center;
+  margin-bottom: 40px;
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    background: var(--gradient-nebula);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: var(--cosmos-moonlight);
+    opacity: 0.8;
+  }
+}
+
+.tv-toggle {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  label {
+    font-size: 0.9rem;
+    color: var(--cosmos-moonlight);
+  }
+}
+
+.tv-toggle-btn {
+  padding: 10px 24px;
+  border-radius: var(--radius-md);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: var(--cosmos-stardust);
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+
+  &.active {
+    background: var(--gradient-cosmos);
+    border-color: transparent;
+    box-shadow: var(--shadow-glow);
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: var(--cosmos-aurora);
+  }
+}
+
+.demo-banner {
+  background: rgba(26, 31, 58, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 32px;
+
+  h2 {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+    color: var(--cosmos-stardust);
+  }
+
+  p {
+    color: var(--cosmos-moonlight);
+    opacity: 0.85;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+  }
+
+  code {
+    background: rgba(123, 104, 238, 0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cosmos-aurora);
+    font-size: 0.85rem;
+  }
+}
+
+.banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--cosmos-stardust);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+
+  &:hover {
+    background: rgba(123, 104, 238, 0.2);
+    border-color: var(--cosmos-aurora);
+    transform: translateY(-1px);
+  }
+}
+
+.btn-danger:hover {
+  background: rgba(233, 30, 99, 0.2);
+  border-color: var(--cosmos-cosmic-pink);
+}
+
+.dynamic-content {
+  h2 {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+  }
+
+  > p {
+    color: var(--cosmos-moonlight);
+    opacity: 0.85;
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+  }
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: rgba(26, 31, 58, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: var(--card-accent);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 20px color-mix(in srgb, var(--card-accent) 30%, transparent);
+  }
+}
+
+.card-icon {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: var(--card-accent);
+}
+
+.card p {
+  font-size: 0.9rem;
+  color: var(--cosmos-moonlight);
+  opacity: 0.85;
+  line-height: 1.5;
+}
+
+.showcase-footer {
+  margin-top: 48px;
+  text-align: center;
+  color: var(--cosmos-moonlight);
+  opacity: 0.6;
+  font-size: 0.85rem;
+}
+
+/* ─── BREAKPOINTS ─────────────────────────────────────────── */
+
+/* Wearable: pantallas muy pequeñas (~200-300px) */
+@media (max-width: 320px) {
+  .showcase-page {
+    padding: 12px 8px;
+    padding-top: 70px;
+  }
+
+  .showcase-header h1 {
+    font-size: 1.1rem;
+  }
+
+  .showcase-header p {
+    font-size: 0.8rem;
+  }
+
+  .demo-banner {
+    padding: 14px;
+  }
+
+  .banner-actions {
+    flex-direction: column;
+    .btn {
+      width: 100%;
+      font-size: 0.8rem;
+      padding: 12px;
+    }
+  }
+
+  .tv-toggle {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .tv-toggle-btn {
+    width: 100%;
+    font-size: 0.8rem;
+  }
+
+  /* Sin banners superiores en wearable: vista simplificada de una sola columna */
+  :host-context(.has-top-banner) .top-banner {
+    display: none;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .card h3 { font-size: 1rem; }
+  .card p { font-size: 0.8rem; }
+}
+
+/* Móvil */
+@media (min-width: 321px) and (max-width: 767px) {
+  .showcase-page {
+    padding: 24px 16px;
+    padding-top: 80px;
+  }
+
+  .showcase-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .banner-actions {
+    flex-direction: column;
+    .btn {
+      width: 100%;
+    }
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tv-toggle {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .showcase-page {
+    padding: 32px 20px;
+    padding-top: 90px;
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Escritorio (base: 1024px-1919px ya está definido arriba) */
+
+/* Smart TV: alto contraste, tipografía grande, navegación por control remoto */
+@mixin tv-mode {
+  .showcase-page {
+    --tv-bg: #000000;
+    --tv-fg: #ffffff;
+    --tv-accent: #ffd700;
+    --tv-focus: #00e5ff;
+
+    max-width: none;
+    padding: 80px 96px;
+    font-size: 1.5rem;
+  }
+
+  body {
+    background-color: #000000;
+  }
+
+  .showcase-page h1 {
+    font-size: 3.5rem;
+    color: var(--tv-accent);
+  }
+
+  .showcase-page p {
+    font-size: 1.5rem;
+  }
+
+  .showcase-page h2 {
+    font-size: 2.5rem;
+  }
+
+  .demo-banner {
+    padding: 48px;
+    font-size: 1.4rem;
+  }
+
+  .btn, .tv-toggle-btn {
+    font-size: 1.4rem;
+    padding: 20px 40px;
+  }
+
+  .card {
+    padding: 40px;
+    border-width: 3px;
+  }
+
+  .card-icon {
+    font-size: 3.5rem;
+  }
+
+  .card h3 {
+    font-size: 2rem;
+  }
+
+  .card p {
+    font-size: 1.3rem;
+  }
+
+  .cards-grid {
+    gap: 40px;
+  }
+
+  /* Foco visible grueso para navegación por control remoto */
+  .btn:focus-visible,
+  .tv-toggle-btn:focus-visible,
+  .card:focus-visible,
+  .card:focus {
+    outline: 4px solid var(--tv-focus);
+    outline-offset: 4px;
+  }
+
+  /* Zona segura de TV: mantener contenido dentro del área segura */
+  .showcase-page {
+    padding: calc(80px + 5vw) 8vw;
+  }
+}
+
+@media (min-width: 1920px) {
+  @include tv-mode;
+}
+
+/* Clase tv-mode activable manualmente (además del breakpoint por ancho) */
+:host-context(.tv-mode) {
+  @include tv-mode;
+}

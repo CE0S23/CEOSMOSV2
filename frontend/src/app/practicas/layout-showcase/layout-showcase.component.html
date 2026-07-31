@@ -1,0 +1,50 @@
+<div class="showcase-page">
+  <app-popup-modal />
+
+  <header class="showcase-header">
+    <h1>Distribución de Página — CEOSmos</h1>
+    <p>Demostración de layout responsive: wearable, móvil, tablet, escritorio y smart TV.</p>
+
+    <div class="tv-toggle">
+      <label for="tv-mode">Modo Smart TV (vista previa):</label>
+      <button
+        id="tv-mode"
+        class="tv-toggle-btn"
+        [class.active]="tvMode()"
+        (click)="toggleTvMode()"
+        aria-pressed="false"
+      >
+        {{ tvMode() ? 'TV: ACTIVADO' : 'TV: DESACTIVADO' }}
+      </button>
+    </div>
+  </header>
+
+  <section class="demo-banner" aria-label="Demostración de banners">
+    <h2>Sistema de Banners Reutilizable</h2>
+    <p>El <code>BannerService.showBanner(config)</code> se invoca desde cualquier componente de la app.</p>
+    <div class="banner-actions">
+      <button class="btn" (click)="showTopBanner()">Banner superior (aviso)</button>
+      <button class="btn" (click)="showSuccess()">Banner de éxito</button>
+      <button class="btn" (click)="showModal()">Modal popup</button>
+      <button class="btn btn-danger" (click)="showError()">Modal de error</button>
+    </div>
+  </section>
+
+  <section class="dynamic-content" aria-label="Contenido dinámico">
+    <h2>Contenido Dinámico</h2>
+    <p>Las tarjetas se renderizan desde un arreglo observable en el componente (no hardcodeadas en el HTML).</p>
+    <div class="cards-grid">
+      @for (card of cards(); track card.id) {
+        <article class="card" [style.--card-accent]="card.accent">
+          <div class="card-icon" aria-hidden="true">{{ card.icon }}</div>
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.description }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <footer class="showcase-footer">
+    <p>Adapta la ventana del navegador o activa el modo TV para ver los breakpoints.</p>
+  </footer>
+</div>
