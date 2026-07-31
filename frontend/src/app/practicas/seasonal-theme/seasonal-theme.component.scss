@@ -1,0 +1,242 @@
+.st-page {
+  min-height: 100vh;
+  padding: 40px 24px;
+  padding-top: calc(80px + 40px);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.st-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    background: var(--gradient-nebula);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: var(--cosmos-moonlight);
+    opacity: 0.8;
+  }
+
+  code {
+    background: rgba(123, 104, 238, 0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cosmos-aurora);
+    font-size: 0.85rem;
+  }
+}
+
+.st-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.st-status-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  h2 {
+    font-size: 1.3rem;
+    color: var(--cosmos-stardust);
+  }
+
+  p {
+    color: var(--cosmos-moonlight);
+    opacity: 0.85;
+    font-size: 0.9rem;
+  }
+
+  strong {
+    color: var(--cosmos-aurora);
+  }
+}
+
+.st-emoji {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.btn {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--cosmos-stardust);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+
+  &:hover:not(:disabled) {
+    background: rgba(123, 104, 238, 0.2);
+    border-color: var(--cosmos-aurora);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.st-palette {
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+
+  h2 {
+    font-size: 1.1rem;
+    color: var(--cosmos-stardust);
+    margin-bottom: 16px;
+  }
+
+  code {
+    background: rgba(123, 104, 238, 0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cosmos-aurora);
+    font-size: 0.85rem;
+  }
+}
+
+.st-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.swatch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: var(--cosmos-aurora);
+  }
+
+  code {
+    background: transparent;
+    padding: 0;
+    font-size: 0.78rem;
+    color: var(--cosmos-moonlight);
+  }
+}
+
+.swatch-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.st-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.st-card {
+  text-align: center;
+  background: rgba(26, 31, 58, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 28px 20px;
+  cursor: pointer;
+  color: var(--cosmos-stardust);
+  transition: all 0.2s;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: var(--cosmos-aurora);
+  }
+
+  &.active {
+    border-color: var(--cosmos-aurora);
+    background: rgba(123, 104, 238, 0.12);
+    box-shadow: var(--shadow-glow);
+  }
+
+  h3 {
+    font-size: 1.15rem;
+    margin-bottom: 6px;
+  }
+
+  p {
+    font-size: 0.85rem;
+    color: var(--cosmos-moonlight);
+    opacity: 0.8;
+    margin-bottom: 12px;
+  }
+}
+
+.st-card-emoji {
+  display: block;
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+}
+
+.st-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--cosmos-moonlight);
+  opacity: 0.6;
+
+  &.visible {
+    background: rgba(123, 104, 238, 0.2);
+    color: var(--cosmos-aurora);
+    opacity: 1;
+  }
+}
+
+.st-footer {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--cosmos-moonlight);
+  opacity: 0.6;
+  font-size: 0.85rem;
+
+  code {
+    background: rgba(123, 104, 238, 0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cosmos-aurora);
+  }
+}
+
+@media (max-width: 767px) {
+  .st-page {
+    padding: 24px 16px;
+    padding-top: 80px;
+  }
+
+  .st-header h1 {
+    font-size: 1.4rem;
+  }
+}

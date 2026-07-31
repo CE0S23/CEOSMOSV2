@@ -66,6 +66,18 @@ export const APP_ROUTES: Routes = [
     title: 'CEOSmos - Practicas: Task Manager',
   },
   {
+    path: 'practicas/pointer-menu',
+    loadComponent: () =>
+      import('./practicas/pointer-menu/pointer-menu.component').then(m => m.PointerMenuComponent),
+    title: 'CEOSmos - Practicas: Menu por Puntero',
+  },
+  {
+    path: 'practicas/seasonal-theme',
+    loadComponent: () =>
+      import('./practicas/seasonal-theme/seasonal-theme.component').then(m => m.SeasonalThemeComponent),
+    title: 'CEOSmos - Practicas: Tema Estacional',
+  },
+  {
     path: '**',
     redirectTo: 'home',
   },

@@ -1,0 +1,70 @@
+<div class="st-page">
+  <header class="st-header">
+    <h1>Tema Estacional — CEOSmos</h1>
+    <p>
+      El tema cambia automáticamente según la estación del año actual y sobrescribe las
+      variables CSS globales (<code>--cosmos-*</code>, <code>--gradient-*</code>) en tiempo real.
+    </p>
+  </header>
+
+  <section class="st-status glassmorphism">
+    <div class="st-status-main">
+      <span class="st-emoji">{{ activeInfo().emoji }}</span>
+      <div>
+        <h2>{{ activeInfo().label }}</h2>
+        <p>
+          Modo: <strong>{{ mode() === 'auto' ? 'Automático (según fecha)' : 'Manual (vista previa)' }}</strong>
+        </p>
+      </div>
+    </div>
+    <button class="btn" (click)="useAuto()" [disabled]="mode() === 'auto'">
+      Volver a automático
+    </button>
+  </section>
+
+  <section class="st-palette glassmorphism">
+    <h2>Paleta aplicada (variables CSS en <code>:root</code>)</h2>
+    <div class="st-swatches">
+      <div class="swatch">
+        <span class="swatch-dot" [style.background]="activePalette().aurora"></span>
+        <code>--cosmos-aurora</code>
+      </div>
+      <div class="swatch">
+        <span class="swatch-dot" [style.background]="activePalette().starBlue"></span>
+        <code>--cosmos-star-blue</code>
+      </div>
+      <div class="swatch">
+        <span class="swatch-dot" [style.background]="activePalette().galaxyPurple"></span>
+        <code>--cosmos-galaxy-purple</code>
+      </div>
+      <div class="swatch">
+        <span class="swatch-dot" [style.background]="activePalette().cosmicPink"></span>
+        <code>--cosmos-cosmic-pink</code>
+      </div>
+    </div>
+  </section>
+
+  <section class="st-grid">
+    @for (info of seasons(); track info.season) {
+      <button
+        class="st-card"
+        [class.active]="activeSeason() === info.season"
+        (click)="selectSeason(info.season)"
+      >
+        <span class="st-card-emoji" aria-hidden="true">{{ info.emoji }}</span>
+        <h3>{{ info.label }}</h3>
+        <p>{{ info.description }}</p>
+        <span class="st-badge" [class.visible]="activeSeason() === info.season">
+          {{ activeSeason() === info.season ? 'Activo' : 'Vista previa' }}
+        </span>
+      </button>
+    }
+  </section>
+
+  <footer class="st-footer">
+    <p>
+      El servicio <code>SeasonalThemeService</code> detecta la estación por mes
+      (dic–feb invierno, mar–may primavera, jun–ago verano, sep–nov otoño) y aplica la paleta.
+    </p>
+  </footer>
+</div>

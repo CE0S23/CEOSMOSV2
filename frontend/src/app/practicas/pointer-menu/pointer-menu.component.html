@@ -1,0 +1,66 @@
+<div class="pm-page">
+  <header class="pm-header">
+    <h1>Menú por Puntero — CEOSmos</h1>
+    <p>
+      Menú contextual que se posiciona exactamente donde está el puntero del ratón.
+      Haz clic derecho (o mantén presionado en táctil) sobre las zonas de abajo.
+    </p>
+  </header>
+
+  <section class="pm-demo">
+    <div
+      class="pm-zone"
+      (contextmenu)="onContextMenu($event, 'Zona A')"
+    >
+      <h2>Zona A — Clic derecho aquí</h2>
+      <p>El menú aparece en las coordenadas exactas del puntero (<code>clientX/clientY</code>).</p>
+    </div>
+
+    <div
+      class="pm-zone pm-zone-alt"
+      (contextmenu)="onContextMenu($event, 'Zona B')"
+    >
+      <h2>Zona B — Panel de tareas</h2>
+      <p>Acciones de navegación directa a las prácticas y temas estacionales.</p>
+    </div>
+  </section>
+
+  <div class="pm-status">
+    <span>Última acción: <strong>{{ lastPosition() || 'Ninguna' }}</strong></span>
+    <span>Tema estacional actual: <strong>{{ currentSeason() }}</strong></span>
+  </div>
+
+  @if (menuOpen()) {
+    <div
+      #menu
+      class="pm-menu glassmorphism"
+      [style.left.px]="menuX()"
+      [style.top.px]="menuY()"
+      role="menu"
+    >
+      <ul>
+        @for (item of items(); track item.id; let i = $index) {
+          <li
+            role="menuitem"
+            [class.active]="activeIndex() === i"
+            (pointerdown)="select(item)"
+            (mousemove)="activeIndex.set(i)"
+          >
+            <span class="pm-icon" aria-hidden="true">{{ item.icon }}</span>
+            <span>{{ item.label }}</span>
+            @if (item.hint) {
+              <span class="pm-hint">{{ item.hint }}</span>
+            }
+          </li>
+        }
+      </ul>
+      <div class="pm-footer">
+        Navega con flechas + Enter · Esc para cerrar
+      </div>
+    </div>
+  }
+
+  <footer class="pm-footer-note">
+    <p>El menú se posiciona con <code>position: fixed</code> usando las coordenadas del evento <code>contextmenu</code>.</p>
+  </footer>
+</div>
