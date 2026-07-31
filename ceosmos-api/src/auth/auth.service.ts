@@ -24,6 +24,9 @@ import { createHash, randomBytes, randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import type { Request } from 'express';
 
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutos
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -112,6 +115,17 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (!user.active) {
+      throw new UnauthorizedException('Account is disabled. Contact an administrator.');
+    }
+
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+      const minutesLeft = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
+      throw new UnauthorizedException(
+        `Account temporarily locked due to too many failed attempts. Try again in ${minutesLeft} minute(s).`,
+      );
+    }
+
     if (!user.emailVerified) {
       console.error(`[AuthService] Login failed: Email not verified for ${dto.email}`);
       throw new UnauthorizedException('Email not verified');
@@ -120,8 +134,33 @@ export class AuthService {
     const isValid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!isValid) {
       console.error(`[AuthService] Login failed: Password mismatch for ${dto.email}`);
-      throw new UnauthorizedException('Invalid credentials');
+      const newFailedCount = user.failedLoginAttempts + 1;
+      const shouldLock = newFailedCount >= MAX_FAILED_ATTEMPTS;
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          failedLoginAttempts: shouldLock ? 0 : newFailedCount,
+          lockedUntil: shouldLock ? new Date(Date.now() + LOCK_DURATION_MS) : user.lockedUntil,
+        },
+      });
+
+      if (shouldLock) {
+        throw new UnauthorizedException(
+          `Account locked for 15 minutes due to ${MAX_FAILED_ATTEMPTS} failed attempts.`,
+        );
+      }
+
+      const attemptsLeft = MAX_FAILED_ATTEMPTS - newFailedCount;
+      throw new UnauthorizedException(
+        `Invalid credentials. ${attemptsLeft} attempt(s) remaining before lock.`,
+      );
     }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { failedLoginAttempts: 0, lockedUntil: null },
+    });
 
     console.log(`[AuthService] User logged in successfully: ${dto.email}`);
     return this.buildJwtSession(user.id, req);

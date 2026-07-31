@@ -7,6 +7,12 @@ import {
   Matches,
 } from 'class-validator';
 
+// Política de contraseña segura: mínimo 8 caracteres, mayúscula, minúscula,
+// número y símbolo. Se comparte entre registro y cambio de contraseña.
+export const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
+export const PASSWORD_MESSAGE =
+  'Password must contain uppercase, lowercase, a number and a symbol';
+
 export class RegisterDto {
   @IsEmail()
   email: string;
@@ -19,8 +25,8 @@ export class RegisterDto {
   @IsString()
   @MinLength(8)
   @MaxLength(72)
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, {
-    message: 'Password must contain uppercase, lowercase and a number',
+  @Matches(PASSWORD_PATTERN, {
+    message: PASSWORD_MESSAGE,
   })
   password: string;
 }
@@ -94,8 +100,8 @@ export class ResetPasswordDto {
   @IsString()
   @MinLength(8)
   @MaxLength(72)
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, {
-    message: 'Password must contain uppercase, lowercase and a number',
+  @Matches(PASSWORD_PATTERN, {
+    message: PASSWORD_MESSAGE,
   })
   newPassword: string;
 }

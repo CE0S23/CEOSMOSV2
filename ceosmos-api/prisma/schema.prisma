@@ -19,15 +19,18 @@ enum Role {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  username      String    @unique
-  passwordHash  String?
-  emailVerified Boolean   @default(false)
-  role          Role      @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
+  id                  String     @id @default(uuid())
+  email               String     @unique
+  username            String     @unique
+  passwordHash        String?
+  emailVerified       Boolean    @default(false)
+  role                Role       @default(USER)
+  active              Boolean    @default(true)
+  failedLoginAttempts Int        @default(0)
+  lockedUntil         DateTime?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  deletedAt           DateTime?
 
   passkeys    Passkey[]
   sessions    Session[]
@@ -35,6 +38,7 @@ model User {
   preferences Preferences?
   mediaItems  MediaItem[]
   tasks       Task[]
+  auditLogs   AuditLog[]
 }
 
 model Passkey {
@@ -111,6 +115,30 @@ enum MediaType {
 enum TaskStatus {
   PENDIENTE
   COMPLETADA
+}
+
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  PASSWORD_CHANGE
+  USER_CREATE
+  USER_DELETE
+  ROLE_CHANGE
+}
+
+model AuditLog {
+  id        String       @id @default(uuid())
+  userId    String?
+  action    AuditAction
+  timestamp DateTime     @default(now())
+  ipAddress String?
+  metadata  Json?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([timestamp])
 }
 
 enum TaskPriority {
