@@ -1,0 +1,165 @@
+<div class="admin-users-page">
+  <div class="admin-users-header">
+    <h1 class="admin-users-title">Administración de Usuarios</h1>
+    <p class="admin-users-sub">Alta, edición, baja lógica y activación de cuentas</p>
+  </div>
+
+  @if (error()) {
+    <div class="admin-users-error">{{ error() }}</div>
+  }
+
+  <div class="admin-users-toolbar">
+    <button class="btn-primary" (click)="openCreate()">+ Nuevo usuario</button>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-users-loading">Cargando usuarios...</div>
+  } @else {
+    <div class="table-wrapper">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Verificado</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Registrado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.id) {
+            <tr>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <span [class]="user.emailVerified ? 'badge badge-ok' : 'badge badge-no'">
+                  {{ user.emailVerified ? 'Sí' : 'No' }}
+                </span>
+              </td>
+              <td>
+                <span [class]="user.role === 'ADMIN' ? 'badge badge-admin' : 'badge badge-user'">
+                  {{ user.role }}
+                </span>
+              </td>
+              <td>
+                <span [class]="user.active !== false ? 'badge badge-active' : 'badge badge-inactive'">
+                  {{ user.active !== false ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
+              <td class="actions">
+                <button class="btn-edit" (click)="openEdit(user)" title="Editar">✏️</button>
+                <button class="btn-pass" (click)="openPassword(user)" title="Cambiar contraseña">🔑</button>
+                <button
+                  class="btn-toggle"
+                  (click)="toggleStatus(user)"
+                  [title]="user.active !== false ? 'Desactivar' : 'Activar'"
+                >
+                  {{ user.active !== false ? '⏸️' : '▶️' }}
+                </button>
+                <button class="btn-delete" (click)="deleteUser(user)" title="Eliminar">🗑️</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (users().length === 0) {
+        <p class="empty-state">No hay otros usuarios registrados.</p>
+      }
+    </div>
+  }
+
+  @if (modal()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        @if (modal()?.type === 'create') {
+          <h2 class="modal-title">Nuevo usuario</h2>
+          <form [formGroup]="createForm" (ngSubmit)="submitCreate()">
+            <label class="field">
+              <span>Email</span>
+              <input type="email" formControlName="email" />
+              @if (createForm.get('email')?.invalid && createForm.get('email')?.touched) {
+                <span class="field-error">Email válido requerido</span>
+              }
+            </label>
+            <label class="field">
+              <span>Usuario</span>
+              <input formControlName="username" />
+              @if (createForm.get('username')?.invalid && createForm.get('username')?.touched) {
+                <span class="field-error">Mínimo 3 caracteres</span>
+              }
+            </label>
+            <label class="field">
+              <span>Contraseña</span>
+              <input type="password" formControlName="password" />
+              @if (createForm.get('password')?.invalid && createForm.get('password')?.touched) {
+                <span class="field-error">Mín. 8, mayúscula, minúscula, número y símbolo</span>
+              }
+            </label>
+            <label class="field">
+              <span>Rol</span>
+              <select formControlName="role">
+                <option value="USER">USER</option>
+                <option value="ADMIN">ADMIN</option>
+              </select>
+            </label>
+            <div class="modal-actions">
+              <button type="button" class="btn-cancel" (click)="closeModal()">Cancelar</button>
+              <button type="submit" class="btn-save" [disabled]="saving() || createForm.invalid">
+                {{ saving() ? '...' : 'Crear' }}
+              </button>
+            </div>
+          </form>
+        }
+
+        @if (modal()?.type === 'edit') {
+          <h2 class="modal-title">Editar usuario</h2>
+          <form [formGroup]="editForm" (ngSubmit)="submitEdit()">
+            <label class="field">
+              <span>Email</span>
+              <input type="email" formControlName="email" />
+              @if (editForm.get('email')?.invalid && editForm.get('email')?.touched) {
+                <span class="field-error">Email válido requerido</span>
+              }
+            </label>
+            <label class="field">
+              <span>Usuario</span>
+              <input formControlName="username" />
+              @if (editForm.get('username')?.invalid && editForm.get('username')?.touched) {
+                <span class="field-error">Mínimo 3 caracteres</span>
+              }
+            </label>
+            <div class="modal-actions">
+              <button type="button" class="btn-cancel" (click)="closeModal()">Cancelar</button>
+              <button type="submit" class="btn-save" [disabled]="saving() || editForm.invalid">
+                {{ saving() ? '...' : 'Guardar' }}
+              </button>
+            </div>
+          </form>
+        }
+
+        @if (modal()?.type === 'password') {
+          <h2 class="modal-title">Cambiar contraseña</h2>
+          <form [formGroup]="passwordForm" (ngSubmit)="submitPassword()">
+            <label class="field">
+              <span>Nueva contraseña</span>
+              <input type="password" formControlName="newPassword" />
+              @if (passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched) {
+                <span class="field-error">Mín. 8, mayúscula, minúscula, número y símbolo</span>
+              }
+            </label>
+            <div class="modal-actions">
+              <button type="button" class="btn-cancel" (click)="closeModal()">Cancelar</button>
+              <button type="submit" class="btn-save" [disabled]="saving() || passwordForm.invalid">
+                {{ saving() ? '...' : 'Guardar' }}
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+    </div>
+  }
+</div>

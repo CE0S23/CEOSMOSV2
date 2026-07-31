@@ -25,6 +25,7 @@ export interface AdminUser {
   username: string;
   emailVerified: boolean;
   role: 'USER' | 'ADMIN';
+  active?: boolean;
   createdAt: string;
   mediaItemsCount: number;
 }
