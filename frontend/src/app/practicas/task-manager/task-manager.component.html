@@ -90,7 +90,7 @@
     } @else {
       <ul class="tm-list">
         @for (task of filteredTasks(); track task.id) {
-          <li class="tm-item" [class.completed]="task.status === 'COMPLETADA'">
+          <li class="tm-item" appHighlightOnHover [class.completed]="task.status === 'COMPLETADA'">
             @if (isEditing(task)) {
               <div class="tm-item-edit">
                 <input

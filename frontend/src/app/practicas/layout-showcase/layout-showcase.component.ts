@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { BannerService } from './banner.service';
 import { PopupModalComponent } from './popup-modal.component';
+import { HighlightOnHoverDirective } from '../../core/directives/highlight-on-hover.directive';
 
 interface ShowcaseCard {
   id: number;
@@ -13,7 +14,7 @@ interface ShowcaseCard {
 @Component({
   selector: 'app-layout-showcase',
   standalone: true,
-  imports: [PopupModalComponent],
+  imports: [PopupModalComponent, HighlightOnHoverDirective],
   templateUrl: './layout-showcase.component.html',
   styleUrl: './layout-showcase.component.scss',
 })

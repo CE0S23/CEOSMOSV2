@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TasksService } from '../../core/services/tasks.service';
 import { Task, TaskStatus, TaskPriority } from '../../core/models/task.model';
+import { HighlightOnHoverDirective } from '../../core/directives/highlight-on-hover.directive';
 
 interface TaskForm {
   title: string;
@@ -25,7 +26,7 @@ const EMPTY_FORM: TaskForm = {
 @Component({
   selector: 'app-task-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HighlightOnHoverDirective],
   templateUrl: './task-manager.component.html',
   styleUrl: './task-manager.component.scss',
 })

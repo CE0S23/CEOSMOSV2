@@ -35,7 +35,7 @@
     <p>Las tarjetas se renderizan desde un arreglo observable en el componente (no hardcodeadas en el HTML).</p>
     <div class="cards-grid">
       @for (card of cards(); track card.id) {
-        <article class="card" [style.--card-accent]="card.accent">
+        <article class="card" appHighlightOnHover [style.--card-accent]="card.accent">
           <div class="card-icon" aria-hidden="true">{{ card.icon }}</div>
           <h3>{{ card.title }}</h3>
           <p>{{ card.description }}</p>

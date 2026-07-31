@@ -61,6 +61,15 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* HighlightOnHoverDirective: clase de efecto por defecto (sombra + escala sutil + borde) */
+.highlight-on-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transform: translateY(-3px) scale(1.01);
+  border-color: var(--cosmos-aurora) !important;
+  box-shadow: var(--shadow-glow), 0 8px 24px rgba(0, 0, 0, 0.35);
+  z-index: 1;
+}
+
 .fade-in {
   animation: fadeIn 0.6s ease-out both;
 }
