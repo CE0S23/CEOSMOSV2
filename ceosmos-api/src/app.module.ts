@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
 import { UsersModule } from './users/users.module';
 import { MediaModule } from './media/media.module';
+import { TasksModule } from './tasks/tasks.module';
 import { SessionsModule } from './sessions/sessions.module';
 
 @Module({
@@ -26,6 +27,7 @@ import { SessionsModule } from './sessions/sessions.module';
     AuthModule,
     UsersModule,
     MediaModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [

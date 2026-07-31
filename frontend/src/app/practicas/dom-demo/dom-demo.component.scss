@@ -1,0 +1,241 @@
+.dom-page {
+  min-height: 100vh;
+  padding: 40px 24px;
+  padding-top: calc(80px + 40px);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.dom-header {
+  text-align: center;
+  margin-bottom: 40px;
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    background: var(--gradient-nebula);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: var(--cosmos-moonlight);
+    opacity: 0.8;
+  }
+}
+
+.dom-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.panel {
+  background: rgba(26, 31, 58, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: var(--cosmos-stardust);
+  }
+
+  > p {
+    color: var(--cosmos-moonlight);
+    opacity: 0.85;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+
+  code {
+    background: rgba(123, 104, 238, 0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cosmos-aurora);
+    font-size: 0.85rem;
+  }
+}
+
+.dom-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dom-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  color: var(--cosmos-stardust);
+  font-size: 0.9rem;
+  animation: dom-slide-in 0.2s ease;
+
+  &.native {
+    border-color: rgba(74, 144, 226, 0.4);
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(74, 144, 226, 0.12);
+    }
+  }
+}
+
+@keyframes dom-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mini-btn {
+  background: transparent;
+  border: none;
+  color: var(--cosmos-moonlight);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 4px 6px;
+  border-radius: 4px;
+
+  &:hover {
+    color: var(--cosmos-cosmic-pink);
+    background: rgba(233, 30, 99, 0.12);
+  }
+}
+
+.empty-hint {
+  color: var(--cosmos-moonlight);
+  opacity: 0.6;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 12px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--cosmos-stardust);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+
+  &:hover {
+    background: rgba(123, 104, 238, 0.2);
+    border-color: var(--cosmos-aurora);
+    transform: translateY(-1px);
+  }
+
+  &.active {
+    background: var(--gradient-cosmos);
+    border-color: transparent;
+    box-shadow: var(--shadow-glow);
+  }
+}
+
+.btn-danger:hover {
+  background: rgba(233, 30, 99, 0.2);
+  border-color: var(--cosmos-cosmic-pink);
+}
+
+.hint {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: var(--cosmos-moonlight);
+  opacity: 0.8;
+}
+
+.log-panel {
+  grid-column: 1 / -1;
+}
+
+.log-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  li {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8rem;
+    color: var(--cosmos-moonlight);
+    padding: 6px 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+.log-time {
+  color: var(--cosmos-aurora);
+  margin-right: 8px;
+}
+
+.dom-footer {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--cosmos-moonlight);
+  opacity: 0.6;
+  font-size: 0.85rem;
+}
+
+/* BREAKPOINTS */
+@media (max-width: 767px) {
+  .dom-page {
+    padding: 24px 16px;
+    padding-top: 80px;
+  }
+
+  .dom-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .dom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 320px) {
+  .dom-page {
+    padding: 12px 8px;
+    padding-top: 70px;
+  }
+
+  .dom-header h1 {
+    font-size: 1.1rem;
+  }
+
+  .panel {
+    padding: 14px;
+  }
+}

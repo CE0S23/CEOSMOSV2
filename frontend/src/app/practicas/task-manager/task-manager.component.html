@@ -1,0 +1,147 @@
+<div class="tm-page">
+  <header class="tm-header">
+    <h1>Administrador de Tareas — CEOSmos</h1>
+    <p>CRUD completo contra la API <code>/api/tasks</code> (NestJS + Prisma/Neon).</p>
+  </header>
+
+  @if (error()) {
+    <div class="tm-error" role="alert">{{ error() }}</div>
+  }
+
+  <section class="panel tm-form-panel">
+    <h2>{{ editingId() ? 'Editar tarea' : 'Nueva tarea' }}</h2>
+    <form class="tm-form" (ngSubmit)="editingId() ? saveEdit() : createTask()" #taskForm="ngForm">
+      <div class="form-row">
+        <label>
+          Título *
+          <input
+            name="title"
+            type="text"
+            [(ngModel)]="form().title"
+            placeholder="Ej. Preparar presentación de la práctica"
+            required
+          />
+        </label>
+        <label>
+          Descripción
+          <textarea
+            name="description"
+            [(ngModel)]="form().description"
+            placeholder="Detalles opcionales de la tarea"
+            rows="2"
+          ></textarea>
+        </label>
+      </div>
+      <div class="form-row form-row-3">
+        <label>
+          Estado
+          <select name="status" [(ngModel)]="form().status">
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="COMPLETADA">Completada</option>
+          </select>
+        </label>
+        <label>
+          Prioridad
+          <select name="priority" [(ngModel)]="form().priority">
+            <option value="BAJA">Baja</option>
+            <option value="MEDIA">Media</option>
+            <option value="ALTA">Alta</option>
+          </select>
+        </label>
+        <label>
+          Fecha límite
+          <input name="dueDate" type="date" [(ngModel)]="form().dueDate" />
+        </label>
+      </div>
+      <div class="form-actions">
+        @if (editingId()) {
+          <button type="button" class="btn" (click)="cancelEdit()">Cancelar</button>
+        }
+        <button type="submit" class="btn btn-primary" [disabled]="loading() || !form().title.trim()">
+          {{ editingId() ? 'Guardar cambios' : 'Agregar tarea' }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="tm-toolbar">
+      <h2>Mis tareas</h2>
+      <div class="tm-filters" role="tablist" aria-label="Filtro por estado">
+        @for (f of filters; track f) {
+          <button
+            class="filter-btn"
+            [class.active]="filter() === f"
+            (click)="setFilter(f)"
+          >
+            {{ f === 'TODAS' ? 'Todas' : f === 'PENDIENTE' ? 'Pendientes' : 'Completadas' }}
+            @if (f === 'TODAS') {
+              <span class="count">({{ pendingCount() }} pendientes)</span>
+            }
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (loading()) {
+      <p class="tm-hint">Cargando tareas…</p>
+    } @else if (filteredTasks().length === 0) {
+      <p class="tm-hint">No hay tareas para mostrar. ¡Crea la primera arriba!</p>
+    } @else {
+      <ul class="tm-list">
+        @for (task of filteredTasks(); track task.id) {
+          <li class="tm-item" [class.completed]="task.status === 'COMPLETADA'">
+            @if (isEditing(task)) {
+              <div class="tm-item-edit">
+                <input
+                  type="text"
+                  [(ngModel)]="form().title"
+                  name="edit-title"
+                  placeholder="Título"
+                />
+                <textarea
+                  [(ngModel)]="form().description"
+                  name="edit-desc"
+                  placeholder="Descripción"
+                  rows="2"
+                ></textarea>
+              </div>
+            } @else {
+              <div class="tm-item-info">
+                <button
+                  class="check-btn"
+                  [attr.aria-label]="task.status === 'COMPLETADA' ? 'Marcar como pendiente' : 'Marcar como completada'"
+                  (click)="toggleStatus(task)"
+                >
+                  {{ task.status === 'COMPLETADA' ? '☑' : '☐' }}
+                </button>
+                <div>
+                  <span class="tm-title">{{ task.title }}</span>
+                  @if (task.description) {
+                    <p class="tm-desc">{{ task.description }}</p>
+                  }
+                  <div class="tm-meta">
+                    <span class="badge badge-priority-{{ task.priority | lowercase }}">{{ priorityLabel(task.priority) }}</span>
+                    @if (task.dueDate) {
+                      <span class="tm-due">📅 {{ task.dueDate | date: 'mediumDate' }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
+            <div class="tm-item-actions">
+              @if (isEditing(task)) {
+                <button class="btn btn-primary" (click)="saveEdit()">Guardar</button>
+                <button class="btn" (click)="cancelEdit()">Cancelar</button>
+              } @else {
+                <button class="btn" (click)="startEdit(task)">Editar</button>
+                <button class="btn btn-danger" (click)="deleteTask(task)">Eliminar</button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

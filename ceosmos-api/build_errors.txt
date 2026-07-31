@@ -1,6 +1,0 @@
-
-> ceosmos-api@0.0.1 build
-> nest build
-
-Found 7 error(s).
-

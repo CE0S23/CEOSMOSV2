@@ -1,0 +1,66 @@
+<div class="dom-page">
+  <header class="dom-header">
+    <h1>Manipulación del DOM — CEOSmos</h1>
+    <p>Demostración de acceso y manipulación del DOM desde Angular: render de listas, elementos nativos y delegación de eventos.</p>
+  </header>
+
+  <section class="dom-grid">
+    <div class="panel">
+      <h2>Render de lista</h2>
+      <p>La lista se actualiza con signals y la directiva estructural <code>&#64;for</code> de Angular.</p>
+
+      <ul class="dom-list" #listContainer>
+        @for (item of items(); track item) {
+          <li class="dom-item">
+            <span>{{ item }}</span>
+            <button class="mini-btn" (click)="removeItem(item)" aria-label="Eliminar">✕</button>
+          </li>
+        }
+      </ul>
+
+      @if (items().length === 0) {
+        <p class="empty-hint">La lista está vacía.</p>
+      }
+
+      <div class="actions">
+        <button class="btn" (click)="addItem()">Agregar</button>
+        <button class="btn" (click)="insertBefore()">Insertar al inicio</button>
+        <button class="btn" (click)="removeLast()">Quitar último</button>
+        <button class="btn btn-danger" (click)="clearItems()">Vaciar</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>API nativa del DOM</h2>
+      <p>Invocar <code>document.createElement</code> y <code>appendChild</code> directamente sobre el mismo contenedor <code>#listContainer</code> (vía <code>ViewChild/ElementRef</code>).</p>
+
+      <div class="actions">
+        <button class="btn" (click)="addItemViaNativeApi()">Crear &lt;li&gt; nativo</button>
+        <button
+          class="btn"
+          [class.active]="isListening()"
+          (click)="toggleGlobalListener()"
+        >
+          {{ isListening() ? 'Detener listener global' : 'Escuchar teclas (delegación)' }}
+        </button>
+      </div>
+
+      <p class="hint">
+        {{ isListening() ? 'Presiona cualquier tecla y observa la bitácora.' : 'El listener global está desactivado.' }}
+      </p>
+    </div>
+
+    <div class="panel log-panel">
+      <h2>Bitácora de operaciones</h2>
+      <ul class="log-list">
+        @for (entry of logEntries(); track $index) {
+          <li><span class="log-time">{{ entry.time }}</span> {{ entry.message }}</li>
+        }
+      </ul>
+    </div>
+  </section>
+
+  <footer class="dom-footer">
+    <p>Los elementos marcados como "nativos" viven fuera del árbol de Angular; los de la lista usan <code>&#64;for</code>.</p>
+  </footer>
+</div>

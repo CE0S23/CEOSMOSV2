@@ -54,6 +54,18 @@ export const APP_ROUTES: Routes = [
     title: 'CEOSmos - Practicas: Layout',
   },
   {
+    path: 'practicas/dom-demo',
+    loadComponent: () =>
+      import('./practicas/dom-demo/dom-demo.component').then(m => m.DomDemoComponent),
+    title: 'CEOSmos - Practicas: DOM',
+  },
+  {
+    path: 'practicas/task-manager',
+    loadComponent: () =>
+      import('./practicas/task-manager/task-manager.component').then(m => m.TaskManagerComponent),
+    title: 'CEOSmos - Practicas: Task Manager',
+  },
+  {
     path: '**',
     redirectTo: 'home',
   },
