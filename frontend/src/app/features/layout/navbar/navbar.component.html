@@ -6,42 +6,7 @@
       <span class="brand-name">CEOSmos</span>
     </a>
 
-    <div class="search-wrapper" role="search">
-      <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
-        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
-      </svg>
-      <input
-        id="navbar-search"
-        type="search"
-        class="search-input"
-        placeholder="Buscar en el cosmos..."
-        autocomplete="off"
-        [formControl]="searchControl"
-        (blur)="showDropdown.set(false)"
-        aria-label="Buscar contenido"
-        aria-autocomplete="list"
-        [attr.aria-expanded]="showDropdown()"
-      />
-      @if (searchControl.value) {
-        <button class="search-clear" (click)="clearSearch()" aria-label="Limpiar busqueda">✕</button>
-      }
-
-      @if (showDropdown()) {
-        <ul class="search-dropdown glassmorphism" role="listbox">
-          @for (result of searchResults(); track result.id) {
-            <li
-              class="search-result-item"
-              role="option"
-              (mousedown)="selectResult(result)"
-            >
-              <span class="result-type-icon">{{ result.type === 'image' ? '🖼' : '🎵' }}</span>
-              <span class="result-title">{{ result.title }}</span>
-              <span class="result-cat">{{ result.category }}</span>
-            </li>
-          }
-        </ul>
-      }
-    </div>
+    <app-search-bar />
 
     <nav class="nav-links" aria-label="Navegacion principal">
       @for (link of navLinks; track link.path) {

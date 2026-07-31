@@ -1,0 +1,42 @@
+<div class="search-wrapper" role="search">
+  <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+  </svg>
+  <input
+    id="navbar-search"
+    type="search"
+    class="search-input"
+    placeholder="Buscar en el sitio..."
+    autocomplete="off"
+    [formControl]="searchControl"
+    (blur)="closeDropdown()"
+    aria-label="Buscar contenido del sitio"
+    aria-autocomplete="list"
+    [attr.aria-expanded]="showDropdown()"
+  />
+  @if (hasQuery()) {
+    <button class="search-clear" (click)="clearSearch()" aria-label="Limpiar busqueda">✕</button>
+  }
+
+  @if (showDropdown()) {
+    <ul #resultsList class="search-dropdown glassmorphism" role="listbox" (mousedown)="$event.preventDefault()">
+      @for (result of results(); track result.id; let i = $index) {
+        <li
+          class="search-result-item"
+          [class.active]="activeIndex() === i"
+          role="option"
+          [attr.aria-selected]="activeIndex() === i"
+          (pointerdown)="selectResult(result)"
+          (mousemove)="activeIndex.set(i)"
+        >
+          <span class="result-icon">🔗</span>
+          <div class="result-text">
+            <span class="result-title">{{ result.title }}</span>
+            <span class="result-desc">{{ result.description }}</span>
+          </div>
+          <span class="result-route">{{ result.route }}</span>
+        </li>
+      }
+    </ul>
+  }
+</div>

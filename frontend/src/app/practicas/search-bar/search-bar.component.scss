@@ -1,0 +1,120 @@
+.search-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 420px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cosmos-aurora);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 40px 10px 38px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 14, 39, 0.6);
+  color: var(--cosmos-stardust);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &::placeholder {
+    color: rgba(240, 244, 248, 0.4);
+  }
+
+  &:focus {
+    border-color: var(--cosmos-aurora);
+    box-shadow: 0 0 0 3px rgba(123, 104, 238, 0.2);
+  }
+}
+
+.search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(240, 244, 248, 0.6);
+  cursor: pointer;
+  padding: 6px;
+  font-size: 0.9rem;
+  border-radius: 50%;
+  transition: all 0.2s;
+
+  &:hover {
+    color: var(--cosmos-stardust);
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  max-height: 360px;
+  overflow-y: auto;
+  border-radius: var(--radius-lg);
+  padding: 6px;
+  z-index: 100;
+  list-style: none;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &.active {
+    background: rgba(123, 104, 238, 0.2);
+  }
+
+  &:hover {
+    background: rgba(123, 104, 238, 0.15);
+  }
+}
+
+.result-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.result-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.result-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--cosmos-stardust);
+}
+
+.result-desc {
+  font-size: 0.75rem;
+  color: rgba(240, 244, 248, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-route {
+  font-size: 0.7rem;
+  color: var(--cosmos-aurora);
+  flex-shrink: 0;
+  font-family: monospace;
+}
