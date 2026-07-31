@@ -21,6 +21,7 @@ import {
   UpdateAdminUserDto,
   UpdateUserStatusDto,
   UpdateUserPasswordDto,
+  ChangeUserRoleDto,
 } from './dto/admin-users.dto';
 
 interface RequestWithUser extends Request {
@@ -54,6 +55,15 @@ export class AdminUsersController {
     return this.adminService.updateUser(targetId, dto);
   }
 
+  @Patch(':id/role')
+  async changeRole(
+    @Param('id') targetId: string,
+    @Body() dto: ChangeUserRoleDto,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.adminService.changeUserRole(targetId, dto, req.user.id);
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   async deleteUser(
@@ -77,5 +87,17 @@ export class AdminUsersController {
     @Body() dto: UpdateUserPasswordDto,
   ) {
     return this.adminService.changeUserPassword(targetId, dto);
+  }
+}
+
+@Controller('admin/roles')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN')
+export class AdminRolesController {
+  constructor(private readonly adminService: AdminService) {}
+
+  @Get()
+  async getRolesPermissions() {
+    return this.adminService.getRolesPermissions();
   }
 }

@@ -11,7 +11,27 @@ import {
   UpdateAdminUserDto,
   UpdateUserStatusDto,
   UpdateUserPasswordDto,
+  ChangeUserRoleDto,
 } from './dto/admin-users.dto';
+
+type Role = 'USER' | 'ADMIN';
+
+export const ROLES_PERMISSIONS: Record<Role, string[]> = {
+  ADMIN: [
+    'admin.users.view',
+    'admin.users.create',
+    'admin.users.edit',
+    'admin.users.deactivate',
+    'admin.users.password',
+    'admin.roles.assign',
+    'admin.roles.view',
+    'admin.audit.view',
+    'auth.login',
+    'profile.edit',
+    'profile.password',
+  ],
+  USER: ['auth.login', 'profile.edit', 'profile.password'],
+};
 
 @Injectable()
 export class AdminService {
@@ -175,5 +195,40 @@ export class AdminService {
     await this.sessionsService.deleteByUserId(targetId);
 
     return { message: `Password updated for ${target.email}` };
+  }
+
+  async changeUserRole(targetId: string, dto: ChangeUserRoleDto, requesterId: string) {
+    if (targetId === requesterId) {
+      throw new BadRequestException(
+        'Admins cannot change their own role via this endpoint',
+      );
+    }
+    const target = await this.findActiveUserOrThrow(targetId);
+
+    const updated = await this.prisma.user.update({
+      where: { id: targetId },
+      data: { role: dto.role as any },
+    });
+
+    return {
+      id: updated.id,
+      email: updated.email,
+      role: (updated as any).role,
+    };
+  }
+
+  getRolesPermissions(): { roles: Record<string, { label: string; permissions: string[] }> } {
+    const labels: Record<Role, string> = {
+      ADMIN: 'Administrador',
+      USER: 'Usuario',
+    };
+    const roles: Record<string, { label: string; permissions: string[] }> = {};
+    for (const role of Object.keys(ROLES_PERMISSIONS) as Role[]) {
+      roles[role] = {
+        label: labels[role],
+        permissions: ROLES_PERMISSIONS[role],
+      };
+    }
+    return { roles };
   }
 }

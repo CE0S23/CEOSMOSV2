@@ -55,6 +55,13 @@ export const APP_ROUTES: Routes = [
     canActivate: [adminGuard],
   },
   {
+    path: 'admin/roles',
+    loadComponent: () =>
+      import('./features/admin/admin-roles/admin-roles.component').then(m => m.AdminRolesComponent),
+    title: 'CEOSmos - Admin Roles',
+    canActivate: [adminGuard],
+  },
+  {
     path: 'practicas/layout',
     loadComponent: () =>
       import('./practicas/layout-showcase/layout-showcase.component').then(m => m.LayoutShowcaseComponent),

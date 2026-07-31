@@ -1,0 +1,82 @@
+<div class="admin-roles-page">
+  <div class="admin-roles-header">
+    <h1 class="admin-roles-title">Roles y Permisos</h1>
+    <p class="admin-roles-sub">Asignación de rol por usuario y mapa de permisos de cada rol</p>
+  </div>
+
+  @if (error()) {
+    <div class="admin-roles-error">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="admin-roles-loading">Cargando roles...</div>
+  } @else {
+    <section class="role-card">
+      <h2 class="section-title">Selector de rol por usuario</h2>
+      <div class="table-wrapper">
+        <table class="roles-table">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Email</th>
+              <th>Rol actual</th>
+              <th>Cambiar rol</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user.id) {
+              <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                  <span [class]="user.role === 'ADMIN' ? 'badge badge-admin' : 'badge badge-user'">
+                    {{ user.role }}
+                  </span>
+                </td>
+                <td>
+                  <select
+                    class="role-select"
+                    [value]="user.role"
+                    [disabled]="savingRole() === user.id"
+                    (change)="changeRole(user, $event)"
+                  >
+                    <option value="USER">USER</option>
+                    <option value="ADMIN">ADMIN</option>
+                  </select>
+                  @if (savingRole() === user.id) {
+                    <span class="saving-hint">Guardando...</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="role-card">
+      <h2 class="section-title">Permisos por rol (solo lectura)</h2>
+      <div class="permissions-grid">
+        @for (role of roles() | keyvalue; track role.key) {
+          <div class="permission-card">
+            <h3 class="permission-role">
+              <span [class]="role.key === 'ADMIN' ? 'badge badge-admin' : 'badge badge-user'">
+                {{ role.key }}
+              </span>
+              <span class="permission-label">{{ role.value.label }}</span>
+            </h3>
+            <ul class="permission-list">
+              @for (permission of role.value.permissions; track permission) {
+                <li>
+                  <span class="check">✔</span>
+                  {{ permissionLabel(permission) }}
+                  <code class="perm-code">{{ permission }}</code>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>

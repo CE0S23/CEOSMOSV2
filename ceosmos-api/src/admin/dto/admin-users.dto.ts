@@ -62,3 +62,8 @@ export class UpdateUserPasswordDto {
   })
   newPassword: string;
 }
+
+export class ChangeUserRoleDto {
+  @IsEnum(['USER', 'ADMIN'])
+  role: 'USER' | 'ADMIN';
+}

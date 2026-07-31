@@ -39,6 +39,12 @@ export class AdminService {
     );
   }
 
+  getRolesPermissions(): Promise<{ roles: Record<string, { label: string; permissions: string[] }> }> {
+    return firstValueFrom(
+      this.http.get<{ roles: Record<string, { label: string; permissions: string[] }> }>(`${this.apiUrl}/admin/roles`),
+    );
+  }
+
   updateUser(id: string, data: { email?: string; username?: string }): Promise<{ id: string; email: string; username: string; role: string }> {
     return firstValueFrom(
       this.http.patch<{ id: string; email: string; username: string; role: string }>(`${this.apiUrl}/admin/users/${id}`, data),
