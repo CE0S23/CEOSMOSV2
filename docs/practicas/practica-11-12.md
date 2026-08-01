@@ -17,7 +17,7 @@ Transformar la plataforma CEOSMOS en un sitio con administración real:
 | 1 | Modelo de datos admin/auditoría y controles base de seguridad | `1d02fef` |
 | 2 | Administración de usuarios (alta, edición, baja lógica, activación) | `0583f2a` |
 | 3 | Gestión de roles y visualización de permisos | `cca3dc5` |
-| 4 | Auditoría, protección CSRF y expiración de sesión | (por cerrar) |
+| 4 | Auditoría, protección CSRF y expiración de sesión | `f586103` |
 
 Cada checkpoint se cerró tras validar: `git status`, `git diff --stat`, `ng build --configuration development`, `ng test --watch=false` y `npm run build` (backend), todo en verde.
 
@@ -117,7 +117,7 @@ Frontend (Angular) ── POST /admin/users ──► AuditInterceptor (APP_INTE
 
 ```
 $ git rev-parse HEAD
-(4 commits de esta práctica: 1d02fef, 0583f2a, cca3dc5 y el de cierre)
+f586103... (4 commits de esta práctica: 1d02fef, 0583f2a, cca3dc5, f586103)
 ```
 
 ## Cómo probar en local
