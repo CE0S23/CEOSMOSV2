@@ -11,6 +11,8 @@ import {
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { Audit } from '../common/audit/audit.decorator';
+import { generateCsrfToken, CSRF_COOKIE } from '../common/csrf/csrf.middleware';
 import {
   RegisterDto,
   LoginDto,
@@ -31,6 +33,18 @@ const COOKIE_OPTIONS = {
   maxAge: 7 * 24 * 60 * 60 * 1000,
   path: '/',
 };
+
+const CSRF_COOKIE_OPTIONS = {
+  httpOnly: false,
+  secure: true,
+  sameSite: 'none' as const,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  path: '/',
+};
+
+function setCsrfCookie(res: Response) {
+  res.cookie(CSRF_COOKIE, generateCsrfToken(), CSRF_COOKIE_OPTIONS);
+}
 
 @Controller('auth')
 export class AuthController {
@@ -62,12 +76,14 @@ export class AuthController {
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
+  @Audit('PASSWORD_CHANGE')
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto.token, dto.newPassword);
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @Audit('LOGIN')
   async login(
     @Body() dto: LoginDto,
     @Req() req: Request,
@@ -75,12 +91,14 @@ export class AuthController {
   ) {
     const session = await this.authService.login(dto, req);
     res.cookie('Authentication', session.accessToken, COOKIE_OPTIONS);
+    setCsrfCookie(res);
     return { success: true, token: session.accessToken };
   }
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @Audit('LOGOUT')
   async logout(
     @Req() req: Request & { user: { id: string } },
     @Res({ passthrough: true }) res: Response,
@@ -117,6 +135,7 @@ export class AuthController {
   ) {
     const session = await this.authService.verifyWebAuthnLogin(dto, req);
     res.cookie('Authentication', session.accessToken, COOKIE_OPTIONS);
+    setCsrfCookie(res);
     return { success: true, token: session.accessToken };
   }
 }

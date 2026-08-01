@@ -231,4 +231,57 @@ export class AdminService {
     }
     return { roles };
   }
+
+  async getAuditLogs(query: {
+    page?: string;
+    pageSize?: string;
+    userId?: string;
+    action?: string;
+    from?: string;
+    to?: string;
+  }) {
+    const page = Math.max(1, parseInt(query.page ?? '1', 10) || 1);
+    const pageSize = Math.min(
+      100,
+      Math.max(1, parseInt(query.pageSize ?? '20', 10) || 20),
+    );
+
+    const where: any = {};
+    if (query.userId) where.userId = query.userId;
+    if (query.action) where.action = query.action;
+    if (query.from || query.to) {
+      where.timestamp = {};
+      if (query.from) where.timestamp.gte = new Date(query.from);
+      if (query.to) where.timestamp.lte = new Date(query.to);
+    }
+
+    const [total, items] = await this.prisma.$transaction([
+      this.prisma.auditLog.count({ where }),
+      this.prisma.auditLog.findMany({
+        where,
+        orderBy: { timestamp: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: { user: { select: { id: true, email: true, username: true } } },
+      }),
+    ]);
+
+    return {
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+      items: items.map((i) => ({
+        id: i.id,
+        action: i.action,
+        timestamp: i.timestamp,
+        ipAddress: i.ipAddress,
+        metadata: i.metadata,
+        userId: i.userId,
+        user: i.user
+          ? { id: i.user.id, email: i.user.email, username: i.user.username }
+          : null,
+      })),
+    };
+  }
 }

@@ -62,6 +62,13 @@ export const APP_ROUTES: Routes = [
     canActivate: [adminGuard],
   },
   {
+    path: 'admin/bitacora',
+    loadComponent: () =>
+      import('./features/admin/admin-bitacora/admin-bitacora.component').then(m => m.AdminBitacoraComponent),
+    title: 'CEOSmos - Admin Bitácora',
+    canActivate: [adminGuard],
+  },
+  {
     path: 'practicas/layout',
     loadComponent: () =>
       import('./practicas/layout-showcase/layout-showcase.component').then(m => m.LayoutShowcaseComponent),

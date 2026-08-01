@@ -1,0 +1,247 @@
+.admin-bitacora-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #c9d1d9;
+}
+
+.admin-bitacora-header {
+  margin-bottom: 1.5rem;
+}
+
+.admin-bitacora-title {
+  font-size: 1.8rem;
+  color: #58a6ff;
+  margin: 0 0 0.25rem;
+}
+
+.admin-bitacora-sub {
+  color: #8b949e;
+  margin: 0;
+}
+
+.admin-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #21262d;
+}
+
+.admin-nav-link {
+  color: #8b949e;
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+
+  &:hover {
+    color: #c9d1d9;
+    background: #161b22;
+  }
+
+  &.active {
+    color: #58a6ff;
+    background: rgba(88, 166, 255, 0.1);
+  }
+}
+
+.admin-bitacora-error {
+  background: rgba(248, 81, 73, 0.15);
+  border: 1px solid #f85149;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  color: #f85149;
+}
+
+.admin-bitacora-loading {
+  color: #8b949e;
+  text-align: center;
+  padding: 3rem;
+}
+
+.admin-bitacora-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #8b949e;
+
+  select,
+  input {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    color: #c9d1d9;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
+
+    &:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+  }
+
+  input[type='text'] {
+    width: 200px;
+  }
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-filter,
+.btn-filter-clear {
+  border: none;
+  border-radius: 4px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-filter {
+  background: #238636;
+  color: #fff;
+
+  &:hover { background: #2ea043; }
+}
+
+.btn-filter-clear {
+  background: #21262d;
+  color: #c9d1d9;
+
+  &:hover { background: #30363d; }
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #0d1117;
+  font-size: 0.85rem;
+
+  th {
+    background: #0d1117;
+    color: #8b949e;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid #30363d;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #21262d;
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+.badge-action {
+  display: inline-block;
+  background: rgba(88, 166, 255, 0.1);
+  color: #58a6ff;
+  border: 1px solid #388bfd;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-right: 0.4rem;
+}
+
+.perm-code {
+  background: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 3px;
+  padding: 0.1rem 0.3rem;
+  font-size: 0.7rem;
+  color: #8b949e;
+}
+
+.meta-details {
+  summary {
+    cursor: pointer;
+    color: #58a6ff;
+    font-size: 0.8rem;
+  }
+}
+
+.meta-pre {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-size: 0.7rem;
+  color: #8b949e;
+  overflow-x: auto;
+  max-width: 360px;
+  margin: 0.4rem 0 0;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.pagination-info {
+  color: #8b949e;
+  font-size: 0.85rem;
+}
+
+.btn-page {
+  background: #21262d;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+  border-radius: 4px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { background: #30363d; }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.empty-state {
+  color: #8b949e;
+  text-align: center;
+  padding: 3rem;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+}

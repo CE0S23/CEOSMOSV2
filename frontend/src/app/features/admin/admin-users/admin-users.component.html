@@ -2,6 +2,11 @@
   <div class="admin-users-header">
     <h1 class="admin-users-title">Administración de Usuarios</h1>
     <p class="admin-users-sub">Alta, edición, baja lógica y activación de cuentas</p>
+    <nav class="admin-nav">
+      <a routerLink="/admin/usuarios" routerLinkActive="active" class="admin-nav-link">Usuarios</a>
+      <a routerLink="/admin/roles" routerLinkActive="active" class="admin-nav-link">Roles y Permisos</a>
+      <a routerLink="/admin/bitacora" routerLinkActive="active" class="admin-nav-link">Bitácora</a>
+    </nav>
   </div>
 
   @if (error()) {

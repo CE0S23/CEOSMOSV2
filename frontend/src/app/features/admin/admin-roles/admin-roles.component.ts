@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { DatePipe, CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AdminService } from '../../../core/services/admin.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdminUser } from '../../../core/models/user.model';
@@ -12,7 +13,7 @@ interface RoleInfo {
 @Component({
   selector: 'app-admin-roles',
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, DatePipe, RouterLink],
   templateUrl: './admin-roles.component.html',
   styleUrl: './admin-roles.component.scss',
 })

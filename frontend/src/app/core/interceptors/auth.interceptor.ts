@@ -12,9 +12,18 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isApiUrl = req.url.startsWith('/') || !req.url.startsWith('http');
   const targetUrl = isApiUrl ? `${environment.apiUrl}${req.url.startsWith('/') ? '' : '/'}${req.url}` : req.url;
 
+  let headers = req.headers;
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase())) {
+    const csrfMatch = document.cookie.match(/(?:^|;\s*)csrfToken=([^;]+)/);
+    if (csrfMatch) {
+      headers = headers.set('x-csrf-token', csrfMatch[1]);
+    }
+  }
+
   const authReq = req.clone({
     url: targetUrl,
     withCredentials: true,
+    headers,
   });
 
   return next(authReq).pipe(

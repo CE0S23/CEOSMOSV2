@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { csrfMiddleware, CSRF_HEADER } from './common/csrf/csrf.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,6 +24,7 @@ async function bootstrap() {
     })
   );
   app.use(cookieParser());
+  app.use(csrfMiddleware);
 
   console.log('FRONTEND_ORIGIN:', process.env.FRONTEND_ORIGIN);
 
@@ -42,7 +44,7 @@ async function bootstrap() {
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', CSRF_HEADER],
   });
 
   app.useGlobalFilters(new HttpExceptionFilter());

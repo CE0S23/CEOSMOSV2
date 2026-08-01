@@ -6,6 +6,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AdminService } from '../../../core/services/admin.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdminUser } from '../../../core/models/user.model';
@@ -18,7 +19,7 @@ interface ModalState {
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe],
+  imports: [ReactiveFormsModule, DatePipe, RouterLink],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss',
 })

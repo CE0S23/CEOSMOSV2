@@ -162,6 +162,8 @@ export class AuthService {
       data: { failedLoginAttempts: 0, lockedUntil: null },
     });
 
+    (req as any).auditUserId = user.id;
+
     console.log(`[AuthService] User logged in successfully: ${dto.email}`);
     return this.buildJwtSession(user.id, req);
   }

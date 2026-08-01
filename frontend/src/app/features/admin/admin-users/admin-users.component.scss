@@ -20,6 +20,32 @@
   margin: 0;
 }
 
+.admin-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #21262d;
+}
+
+.admin-nav-link {
+  color: #8b949e;
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+
+  &:hover {
+    color: #c9d1d9;
+    background: #161b22;
+  }
+
+  &.active {
+    color: #58a6ff;
+    background: rgba(88, 166, 255, 0.1);
+  }
+}
+
 .admin-users-error {
   background: rgba(248, 81, 73, 0.15);
   border: 1px solid #f85149;

@@ -50,4 +50,42 @@ export class AdminService {
       this.http.patch<{ id: string; email: string; username: string; role: string }>(`${this.apiUrl}/admin/users/${id}`, data),
     );
   }
+
+  getAuditLogs(params: {
+    page?: number;
+    pageSize?: number;
+    userId?: string;
+    action?: string;
+    from?: string;
+    to?: string;
+  } = {}): Promise<AuditLogPage> {
+    const query: Record<string, string> = {};
+    if (params.page) query['page'] = String(params.page);
+    if (params.pageSize) query['pageSize'] = String(params.pageSize);
+    if (params.userId) query['userId'] = params.userId;
+    if (params.action) query['action'] = params.action;
+    if (params.from) query['from'] = params.from;
+    if (params.to) query['to'] = params.to;
+    return firstValueFrom(
+      this.http.get<AuditLogPage>(`${this.apiUrl}/admin/audit-log`, { params: query }),
+    );
+  }
+}
+
+export interface AuditLogEntry {
+  id: string;
+  action: string;
+  timestamp: string;
+  ipAddress: string | null;
+  metadata: Record<string, any> | null;
+  userId: string | null;
+  user: { id: string; email: string; username: string } | null;
+}
+
+export interface AuditLogPage {
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  items: AuditLogEntry[];
 }

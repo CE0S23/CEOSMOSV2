@@ -2,6 +2,11 @@
   <div class="admin-roles-header">
     <h1 class="admin-roles-title">Roles y Permisos</h1>
     <p class="admin-roles-sub">Asignación de rol por usuario y mapa de permisos de cada rol</p>
+    <nav class="admin-nav">
+      <a routerLink="/admin/usuarios" routerLinkActive="active" class="admin-nav-link">Usuarios</a>
+      <a routerLink="/admin/roles" routerLinkActive="active" class="admin-nav-link">Roles y Permisos</a>
+      <a routerLink="/admin/bitacora" routerLinkActive="active" class="admin-nav-link">Bitácora</a>
+    </nav>
   </div>
 
   @if (error()) {

@@ -1,0 +1,96 @@
+<div class="admin-bitacora-page">
+  <div class="admin-bitacora-header">
+    <h1 class="admin-bitacora-title">Bitácora de Auditoría</h1>
+    <p class="admin-bitacora-sub">Registro de acciones de administración, login, logout y cambios de contraseña</p>
+    <nav class="admin-nav">
+      <a routerLink="/admin/usuarios" routerLinkActive="active" class="admin-nav-link">Usuarios</a>
+      <a routerLink="/admin/roles" routerLinkActive="active" class="admin-nav-link">Roles y Permisos</a>
+      <a routerLink="/admin/bitacora" routerLinkActive="active" class="admin-nav-link">Bitácora</a>
+    </nav>
+  </div>
+
+  @if (error()) {
+    <div class="admin-bitacora-error">{{ error() }}</div>
+  }
+
+  <div class="admin-bitacora-filters">
+    <label class="filter-field">
+      <span>Acción</span>
+      <select [value]="filterAction()" (change)="filterAction.set($any($event.target).value)">
+        <option value="">Todas</option>
+        @for (action of actionOptions; track action) {
+          <option [value]="action">{{ actionLabel(action) }}</option>
+        }
+      </select>
+    </label>
+    <label class="filter-field">
+      <span>ID de usuario</span>
+      <input type="text" [value]="filterUserId()" (input)="filterUserId.set($any($event.target).value)" placeholder="userId (opcional)" />
+    </label>
+    <label class="filter-field">
+      <span>Desde</span>
+      <input type="date" [value]="filterFrom()" (change)="filterFrom.set($any($event.target).value)" />
+    </label>
+    <label class="filter-field">
+      <span>Hasta</span>
+      <input type="date" [value]="filterTo()" (change)="filterTo.set($any($event.target).value)" />
+    </label>
+    <div class="filter-actions">
+      <button class="btn-filter" (click)="applyFilters()">Filtrar</button>
+      <button class="btn-filter-clear" (click)="clearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-bitacora-loading">Cargando bitácora...</div>
+  } @else if (logs() && logs()!.items.length > 0) {
+    <div class="table-wrapper">
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Acción</th>
+            <th>Usuario</th>
+            <th>ID de usuario</th>
+            <th>IP</th>
+            <th>Detalles</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of logs()!.items; track entry.id) {
+            <tr>
+              <td>{{ entry.timestamp | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+              <td>
+                <span class="badge badge-action">{{ actionLabel(entry.action) }}</span>
+                <code class="perm-code">{{ entry.action }}</code>
+              </td>
+              <td>{{ entry.user ? entry.user.email : '—' }}</td>
+              <td><code class="perm-code">{{ entry.userId ?? '—' }}</code></td>
+              <td>{{ entry.ipAddress ?? '—' }}</td>
+              <td>
+                @if (entry.metadata && (entry.metadata | keyvalue).length > 0) {
+                  <details class="meta-details">
+                    <summary>Ver detalles</summary>
+                    <pre class="meta-pre">{{ entry.metadata | json }}</pre>
+                  </details>
+                } @else {
+                  <span>—</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button class="btn-page" (click)="goToPage(logs()!.page - 1)" [disabled]="logs()!.page <= 1">Anterior</button>
+      <span class="pagination-info">
+        Página {{ logs()!.page }} de {{ logs()!.totalPages || 1 }} — {{ logs()!.total }} registros
+      </span>
+      <button class="btn-page" (click)="goToPage(logs()!.page + 1)" [disabled]="logs()!.page >= logs()!.totalPages">Siguiente</button>
+    </div>
+  } @else {
+    <p class="empty-state">No hay registros de auditoría con los filtros actuales.</p>
+  }
+</div>

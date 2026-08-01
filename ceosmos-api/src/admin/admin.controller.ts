@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
   Req,
   HttpCode,
@@ -16,12 +17,14 @@ import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { Audit } from '../common/audit/audit.decorator';
 import {
   CreateAdminUserDto,
   UpdateAdminUserDto,
   UpdateUserStatusDto,
   UpdateUserPasswordDto,
   ChangeUserRoleDto,
+  AuditLogQueryDto,
 } from './dto/admin-users.dto';
 
 interface RequestWithUser extends Request {
@@ -40,6 +43,7 @@ export class AdminUsersController {
   }
 
   @Post()
+  @Audit('USER_CREATE')
   async createUser(
     @Body() dto: CreateAdminUserDto,
     @Req() req: RequestWithUser,
@@ -56,6 +60,7 @@ export class AdminUsersController {
   }
 
   @Patch(':id/role')
+  @Audit('ROLE_CHANGE')
   async changeRole(
     @Param('id') targetId: string,
     @Body() dto: ChangeUserRoleDto,
@@ -66,6 +71,7 @@ export class AdminUsersController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @Audit('USER_DELETE')
   async deleteUser(
     @Param('id') targetId: string,
     @Req() req: RequestWithUser,
@@ -82,6 +88,7 @@ export class AdminUsersController {
   }
 
   @Patch(':id/password')
+  @Audit('PASSWORD_CHANGE')
   async changePassword(
     @Param('id') targetId: string,
     @Body() dto: UpdateUserPasswordDto,
@@ -99,5 +106,17 @@ export class AdminRolesController {
   @Get()
   async getRolesPermissions() {
     return this.adminService.getRolesPermissions();
+  }
+}
+
+@Controller('admin/audit-log')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN')
+export class AdminAuditLogController {
+  constructor(private readonly adminService: AdminService) {}
+
+  @Get()
+  async getAuditLogs(@Query() query: AuditLogQueryDto) {
+    return this.adminService.getAuditLogs(query as any);
   }
 }
