@@ -37,7 +37,7 @@
 |---------|-------------|
 | `frontend/src/app/core/services/site-search.service.ts` | `SiteSearchService`: índice en memoria de secciones del sitio + rutas de práctica, con búsqueda por relevancia y normalización de acentos |
 | `frontend/src/app/core/services/site-search.service.spec.ts` | Pruebas unitarias Jasmine |
-| `frontend/src/app/practicas/search-bar/search-bar.component.ts/.html/.scss` | `SearchBarComponent`: debounce 250ms, dropdown con teclado (flechas + enter + escape) y clic, navega con `Router.navigate` |
+| `frontend/src/app/components/search-bar/search-bar.component.ts/.html/.scss` | `SearchBarComponent`: debounce 250ms, dropdown con teclado (flechas + enter + escape) y clic, navega con `Router.navigate` |
 | `frontend/src/app/features/layout/navbar/navbar.component.ts/.html` | Integración: el `SearchBarComponent` reemplaza la búsqueda inline previa |
 | `frontend/angular.json`, `frontend/karma.conf.js`, `frontend/src/test.ts`, `frontend/tsconfig.spec.json` | Infraestructura de pruebas Karma/Jasmine (no existía `test` target) |
 

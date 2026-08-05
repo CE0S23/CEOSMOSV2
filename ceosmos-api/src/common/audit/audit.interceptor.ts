@@ -39,7 +39,7 @@ export class AuditInterceptor implements NestInterceptor {
         const metadata = {
           method: req.method,
           path: req.route?.path ?? req.originalUrl,
-          targetId: (req.params as Record<string, string>)?.id ?? null,
+          targetId: (req as any).auditTargetId ?? (req.params as Record<string, string>)?.id ?? null,
         };
         this.auditLogService.log(action, userId, req, metadata);
       }),

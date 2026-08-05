@@ -90,6 +90,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const session = await this.authService.login(dto, req);
+    (req as any).auditTargetId = (req as any).auditUserId;
     res.cookie('Authentication', session.accessToken, COOKIE_OPTIONS);
     setCsrfCookie(res);
     return { success: true, token: session.accessToken };
@@ -103,6 +104,7 @@ export class AuthController {
     @Req() req: Request & { user: { id: string } },
     @Res({ passthrough: true }) res: Response,
   ) {
+    (req as any).auditTargetId = req.user.id;
     await this.authService.logout((req as any).user.id);
     res.clearCookie('Authentication');
     return { success: true };

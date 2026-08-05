@@ -48,7 +48,9 @@ export class AdminUsersController {
     @Body() dto: CreateAdminUserDto,
     @Req() req: RequestWithUser,
   ) {
-    return this.adminService.createUser(dto, req.user.id);
+    const result = await this.adminService.createUser(dto, req.user.id);
+    (req as any).auditTargetId = result.id;
+    return result;
   }
 
   @Patch(':id')
