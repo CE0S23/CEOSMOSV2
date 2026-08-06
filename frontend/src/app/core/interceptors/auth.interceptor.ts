@@ -9,8 +9,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authService = inject(AuthService);
 
-  const isApiUrl = req.url.startsWith('/') || !req.url.startsWith('http');
-  const targetUrl = isApiUrl ? `${environment.apiUrl}${req.url.startsWith('/') ? '' : '/'}${req.url}` : req.url;
+  const isApiUrl = req.url.startsWith(environment.apiUrl) || !req.url.startsWith('http');
+  const targetUrl = req.url;
 
   let headers = req.headers;
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase())) {
