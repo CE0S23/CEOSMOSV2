@@ -106,7 +106,12 @@ export class AuthController {
   ) {
     (req as any).auditTargetId = req.user.id;
     await this.authService.logout((req as any).user.id);
-    res.clearCookie('Authentication');
+    res.clearCookie('Authentication', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      path: '/',
+    });
     return { success: true };
   }
 
