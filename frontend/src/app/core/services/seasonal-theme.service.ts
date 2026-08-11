@@ -51,7 +51,7 @@ export const SEASON_PALETTES: Record<Season, SeasonPalette> = {
   },
 };
 
-const VARIABLE_MAP: Record<keyof SeasonPalette, string> = {
+export const VARIABLE_MAP: Record<keyof SeasonPalette, string> = {
   aurora: '--cosmos-aurora',
   starBlue: '--cosmos-star-blue',
   galaxyPurple: '--cosmos-galaxy-purple',
@@ -104,17 +104,10 @@ export class SeasonalThemeService {
   }
 
   reset(): void {
-    this.appliedVars.forEach(v => document.documentElement.style.removeProperty(v));
-    this.appliedVars = [];
+    // Moved to component
   }
 
   private apply(): void {
-    this.reset();
-    const palette = this.palette();
-    (Object.keys(palette) as (keyof SeasonPalette)[]).forEach(key => {
-      document.documentElement.style.setProperty(VARIABLE_MAP[key], palette[key]);
-      this.appliedVars.push(VARIABLE_MAP[key]);
-    });
-    document.documentElement.setAttribute('data-season', this._season());
+    // Moved to component
   }
 }

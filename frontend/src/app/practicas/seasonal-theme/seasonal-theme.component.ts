@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
-import { SeasonalThemeService, Season, SEASON_PALETTES } from '../../core/services/seasonal-theme.service';
+import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import { SeasonalThemeService, Season, SEASON_PALETTES, VARIABLE_MAP, SeasonPalette } from '../../core/services/seasonal-theme.service';
 
 interface SeasonInfo {
   season: Season;
@@ -16,6 +16,7 @@ interface SeasonInfo {
 })
 export class SeasonalThemeComponent implements OnInit, OnDestroy {
   private readonly themeService = inject(SeasonalThemeService);
+  private appliedVars: string[] = [];
 
   readonly seasons = signal<SeasonInfo[]>([
     { season: 'primavera', label: 'Primavera', emoji: '🌸', description: 'Verdes frescos y rosas suaves (mar–may)' },
@@ -31,12 +32,29 @@ export class SeasonalThemeComponent implements OnInit, OnDestroy {
     () => this.seasons().find(s => s.season === this.activeSeason())!,
   );
 
+  constructor() {
+    effect(() => {
+      this.applyToRoot(this.activePalette(), this.activeSeason());
+    });
+  }
+
   ngOnInit(): void {
     this.themeService.setAuto();
   }
 
   ngOnDestroy(): void {
-    this.themeService.reset();
+    this.appliedVars.forEach(v => document.documentElement.style.removeProperty(v));
+    this.appliedVars = [];
+  }
+
+  private applyToRoot(palette: SeasonPalette, season: Season): void {
+    this.appliedVars.forEach(v => document.documentElement.style.removeProperty(v));
+    this.appliedVars = [];
+    (Object.keys(palette) as (keyof SeasonPalette)[]).forEach(key => {
+      document.documentElement.style.setProperty(VARIABLE_MAP[key], palette[key]);
+      this.appliedVars.push(VARIABLE_MAP[key]);
+    });
+    document.documentElement.setAttribute('data-season', season);
   }
 
   selectSeason(season: Season): void {

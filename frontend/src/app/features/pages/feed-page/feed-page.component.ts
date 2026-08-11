@@ -4,13 +4,14 @@ import { FlowFeedComponent } from '../../feed/flow-feed/flow-feed.component';
 import { InspirationQuote } from '../../../core/models/feed-item.model';
 import { ChipModule } from 'primeng/chip';
 import { ButtonModule } from 'primeng/button';
+import { SeasonalWidgetComponent } from '../../../shared/components/seasonal-widget/seasonal-widget.component';
 
 type FeedFilter = 'all' | 'image' | 'music';
 
 @Component({
   selector: 'app-feed-page',
   standalone: true,
-  imports: [FlowFeedComponent, ChipModule, ButtonModule],
+  imports: [FlowFeedComponent, ChipModule, ButtonModule, SeasonalWidgetComponent],
   templateUrl: './feed-page.component.html',
   styleUrl: './feed-page.component.scss',
 })
