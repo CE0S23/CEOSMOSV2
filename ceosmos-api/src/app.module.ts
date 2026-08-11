@@ -14,6 +14,7 @@ import { SessionsModule } from './sessions/sessions.module';
 import { AdminModule } from './admin/admin.module';
 import { AuditModule } from './common/audit/audit.module';
 import { AuditInterceptor } from './common/audit/audit.interceptor';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AuditInterceptor } from './common/audit/audit.interceptor';
     TasksModule,
     AdminModule,
     AuditModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [
