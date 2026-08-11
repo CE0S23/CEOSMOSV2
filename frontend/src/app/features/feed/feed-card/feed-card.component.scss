@@ -46,6 +46,40 @@
     color: #fff;
   }
 
+  .card-actions-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(10, 14, 39, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 10;
+    pointer-events: none;
+
+    ::ng-deep .p-button {
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      backdrop-filter: blur(4px);
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.4);
+      }
+    }
+  }
+
+  &:hover .card-actions-overlay {
+    opacity: 1;
+    transform: scale(1);
+  }
+
   .card-skeleton {
     position: absolute;
     inset: 0;

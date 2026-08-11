@@ -27,6 +27,10 @@ import { ButtonModule } from 'primeng/button';
           <p-tag [value]="asImage(item().data).category" severity="secondary" />
           <span class="card-title">{{ asImage(item().data).title }}</span>
         </div>
+        <div class="card-actions-overlay">
+          <p-button icon="pi pi-bookmark" rounded="true" text="true" (onClick)="$event.stopPropagation()" aria-label="Guardar" />
+          <p-button icon="pi pi-eye" rounded="true" text="true" (onClick)="$event.stopPropagation()" aria-label="Ver" />
+        </div>
       </article>
     }
 
