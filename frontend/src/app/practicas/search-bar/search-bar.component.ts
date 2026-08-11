@@ -11,9 +11,20 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { SiteSearchService, SiteSearchResult } from '../../core/services/site-search.service';
+import { Subject, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, catchError, takeUntil } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+
+export interface ApiSearchResult {
+  id: string;
+  type: string;
+  title: string;
+  description?: string;
+  category: string;
+  url?: string;
+  route?: string;
+}
 
 @Component({
   selector: 'app-search-bar',
@@ -23,12 +34,12 @@ import { SiteSearchService, SiteSearchResult } from '../../core/services/site-se
   styleUrl: './search-bar.component.scss',
 })
 export class SearchBarComponent implements OnInit, OnDestroy {
-  private readonly siteSearch = inject(SiteSearchService);
+  private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
 
   readonly searchControl = new FormControl('');
-  readonly results = signal<SiteSearchResult[]>([]);
+  readonly results = signal<ApiSearchResult[]>([]);
   readonly showDropdown = signal(false);
   readonly activeIndex = signal(-1);
 
@@ -39,21 +50,62 @@ export class SearchBarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.searchControl.valueChanges
       .pipe(
-        debounceTime(250),
+        debounceTime(300),
         distinctUntilChanged(),
         takeUntil(this.destroy$),
+        switchMap(term => {
+          const query = term?.trim() ?? '';
+          if (query.length < 2) {
+            return of({ users: [], tasks: [], media: [] });
+          }
+          return this.http.get<any>(`${environment.apiUrl}/search?q=${encodeURIComponent(query)}`).pipe(
+            catchError(() => of({ users: [], tasks: [], media: [] }))
+          );
+        })
       )
-      .subscribe(term => {
-        const query = term?.trim() ?? '';
+      .subscribe(data => {
+        const query = this.searchControl.value?.trim() ?? '';
         if (query.length < 2) {
           this.results.set([]);
           this.showDropdown.set(false);
           this.activeIndex.set(-1);
           return;
         }
-        const matches = this.siteSearch.search(query).slice(0, 8);
-        this.results.set(matches);
-        this.showDropdown.set(matches.length > 0);
+
+        let mapped: ApiSearchResult[] = [];
+        
+        const users = data.users || [];
+        mapped = mapped.concat(users.map((u: any) => ({
+            id: u.id,
+            type: 'user',
+            title: u.username,
+            description: u.email,
+            category: 'Usuario',
+            route: `/admin/usuarios`
+        })));
+
+        const tasks = data.tasks || [];
+        mapped = mapped.concat(tasks.map((t: any) => ({
+            id: t.id,
+            type: 'task',
+            title: t.title,
+            description: t.description || 'Sin descripción',
+            category: t.status || 'Tarea',
+            route: `/practicas/task-manager`
+        })));
+
+        const media = data.media || [];
+        mapped = mapped.concat(media.map((m: any) => ({
+            id: m.id,
+            type: 'media',
+            title: m.filename,
+            description: m.mimeType,
+            category: 'Archivo',
+            url: m.url
+        })));
+
+        this.results.set(mapped.slice(0, 8));
+        this.showDropdown.set(mapped.length > 0);
         this.activeIndex.set(-1);
       });
   }
@@ -63,11 +115,15 @@ export class SearchBarComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  selectResult(result: SiteSearchResult): void {
+  selectResult(result: ApiSearchResult): void {
     this.searchControl.setValue('');
     this.results.set([]);
     this.showDropdown.set(false);
-    this.router.navigate([result.route]);
+    if (result.route) {
+        this.router.navigate([result.route]);
+    } else if (result.url) {
+        window.open(result.url, '_blank');
+    }
   }
 
   closeDropdown(): void {

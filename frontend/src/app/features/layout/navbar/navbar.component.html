@@ -6,7 +6,9 @@
       <span class="brand-name">CEOSmos</span>
     </a>
 
-    <app-search-bar />
+    @defer (on idle) {
+      <app-search-bar />
+    }
 
     <nav class="nav-links" aria-label="Navegacion principal">
       @for (link of navLinks; track link.path) {
