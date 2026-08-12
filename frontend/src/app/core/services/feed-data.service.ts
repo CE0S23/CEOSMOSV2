@@ -81,4 +81,8 @@ export class FeedDataService {
   refreshQuote(): InspirationQuote {
     return QUOTES[Math.floor(Math.random() * QUOTES.length)];
   }
+
+  getFeedSnapshot(): FeedItem[] {
+    return this._feed();
+  }
 }
