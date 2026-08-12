@@ -6,9 +6,6 @@
         <p class="page-subtitle">Tu cosmos de inspiracion</p>
       </div>
 
-      <div style="position: absolute; right: 0; top: 0;">
-        <app-seasonal-widget />
-      </div>
 
       <div class="filter-chips" role="group" aria-label="Filtrar contenido">
         @for (f of filters; track f.value) {
@@ -38,5 +35,9 @@
 
   <div class="container">
     <app-flow-feed />
+  </div>
+
+  <div style="position: fixed; bottom: 24px; right: 24px; z-index: 5;">
+    <app-seasonal-widget />
   </div>
 </div>
