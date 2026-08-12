@@ -1,19 +1,37 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FeedDataService } from '../../../core/services/feed-data.service';
 import { FeedCardComponent } from '../feed-card/feed-card.component';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DialogModule } from 'primeng/dialog';
 import { FeedItem, CosmosImage, MusicTrack } from '../../../core/models/feed-item.model';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { FilterService, FeedFilter } from '../../../core/services/filter.service';
+import { SearchService } from '../../../services/search.service';
 
 @Component({
   selector: 'app-flow-feed',
   standalone: true,
-  imports: [FeedCardComponent, SkeletonModule, DialogModule],
+  imports: [CommonModule, FeedCardComponent, SkeletonModule, DialogModule],
   template: `
+    <div class="feed-filters">
+      <button 
+        class="filter-btn"
+        [class.active]="currentFilter === 'all'" 
+        (click)="setFilter('all')">Todo</button>
+      <button 
+        class="filter-btn"
+        [class.active]="currentFilter === 'images'" 
+        (click)="setFilter('images')">Imágenes</button>
+      <button 
+        class="filter-btn"
+        [class.active]="currentFilter === 'music'" 
+        (click)="setFilter('music')">Videos</button>
+    </div>
+
     <section class="flow-feed" aria-label="Flow Feed">
       <div class="masonry-grid">
-        @for (item of feedService.feed(); track item.id) {
+        @for (item of filteredItems; track item.id) {
           @defer (on viewport) {
             <app-feed-card [item]="item" (itemClicked)="openDetail($event)" />
           } @placeholder {
@@ -38,6 +56,17 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
         <div class="dialog-content image-content">
           <img [src]="asImage(selectedItem?.data).url" [alt]="asImage(selectedItem?.data).title" style="width: 100%; border-radius: 8px;">
           <p class="dialog-description" style="margin-top: 1rem; color: #f0f4f8;">{{ asImage(selectedItem?.data).title }}</p>
+          
+          <div class="related-images-section" *ngIf="relatedItems.length > 0">
+            <h3 style="color: white; margin-top: 2rem; margin-bottom: 1rem;">Imágenes Relacionadas</h3>
+            <div class="related-grid">
+              @for (rel of relatedItems; track rel.id) {
+                <div class="related-card" (click)="onRelatedClick(rel)">
+                  <img [src]="asImage(rel.data).url" [alt]="asImage(rel.data).title" />
+                </div>
+              }
+            </div>
+          </div>
         </div>
       }
       
@@ -57,17 +86,62 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   `,
   styleUrl: './flow-feed.component.scss',
 })
-export class FlowFeedComponent {
+export class FlowFeedComponent implements OnInit {
   readonly feedService = inject(FeedDataService);
   private sanitizer = inject(DomSanitizer);
+  private filterService = inject(FilterService);
+  private searchService = inject(SearchService);
 
   dialogVisible = false;
   selectedItem: FeedItem | null = null;
+  relatedItems: FeedItem[] = [];
+  
+  allItems: FeedItem[] = [];
+  filteredItems: FeedItem[] = [];
+  currentFilter: FeedFilter = 'all';
+
+  ngOnInit() {
+    this.allItems = this.feedService.feed();
+    
+    this.filterService.filter$.subscribe(filter => {
+      this.currentFilter = filter;
+      this.applyFilter();
+    });
+  }
+
+  setFilter(filter: FeedFilter) {
+    this.filterService.setFilter(filter);
+  }
+
+  private applyFilter() {
+    if (this.currentFilter === 'all') {
+      this.filteredItems = this.allItems;
+    } else if (this.currentFilter === 'images') {
+      this.filteredItems = this.allItems.filter(i => i.type === 'image');
+    } else if (this.currentFilter === 'music') {
+      this.filteredItems = this.allItems.filter(i => i.type === 'music');
+    }
+  }
 
   openDetail(item: FeedItem) {
     if (item.type === 'quote') return;
+    
     this.selectedItem = item;
-    this.dialogVisible = true;
+    
+    if (item.type === 'image') {
+      const category = this.asImage(item.data).category || '';
+      this.searchService.search(category, 'images').subscribe(results => {
+        this.relatedItems = results.filter(r => r.id !== item.id && r.type === 'image');
+        this.dialogVisible = true;
+      });
+    } else {
+      this.relatedItems = [];
+      this.dialogVisible = true;
+    }
+  }
+
+  onRelatedClick(item: FeedItem) {
+    this.openDetail(item);
   }
 
   dialogHeader() {
@@ -85,4 +159,5 @@ export class FlowFeedComponent {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url + '?autoplay=1&mute=0');
   }
 }
+
 
