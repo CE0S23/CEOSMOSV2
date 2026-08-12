@@ -37,42 +37,72 @@ export class SearchService {
     }
 
     private mapToFeedItems(response: any): FeedItem[] {
-        if (!response) return [];
-        
-        // Handle array or object with 'results' property
-        const rawItems = Array.isArray(response) ? response : (Array.isArray(response.results) ? response.results : []);
-        
-        return rawItems.map((item: any, index: number) => {
-            const isMusic = !!item.embedUrl || item.type === 'music';
-            
-            if (isMusic) {
-                const musicData: MusicTrack = {
-                    id: item.id || `music-${index}`,
-                    name: item.name || item.title || 'Música',
-                    embedUrl: item.embedUrl || item.url || '',
-                    type: item.type || 'lofi',
-                    description: item.description || ''
-                };
+        // 1. Intentar con 'media'
+        let items = response?.media;
+        if (items && Array.isArray(items)) {
+            return items.map((item: any) => {
+                const type = this.inferType(item);
+                const data = this.buildData(item, type);
                 return {
-                    id: `feed-trk-${musicData.id}`,
-                    type: 'music',
-                    data: musicData
+                    id: item.id || `search-${Math.random()}`,
+                    type,
+                    data
                 } as FeedItem;
-            } else {
-                const imageData: CosmosImage = {
-                    id: item.id || `img-${index}`,
-                    url: item.url || item.imageUrl || '',
-                    title: item.title || item.name || 'Imagen',
-                    category: item.category || 'art',
-                    height: item.height || (Math.floor(Math.random() * (400 - 200 + 1)) + 200) // fallback height
-                };
+            });
+        }
+
+        // 2. Fallback: arreglo directo
+        if (Array.isArray(response)) {
+            return response.map((item: any) => {
+                const type = this.inferType(item);
+                const data = this.buildData(item, type);
                 return {
-                    id: `feed-img-${imageData.id}`,
-                    type: 'image',
-                    data: imageData
+                    id: item.id || `search-${Math.random()}`,
+                    type,
+                    data
                 } as FeedItem;
-            }
-        });
+            });
+        }
+
+        // 3. Fallback: propiedad 'results'
+        if (response?.results && Array.isArray(response.results)) {
+            return response.results.map((item: any) => {
+                const type = this.inferType(item);
+                const data = this.buildData(item, type);
+                return {
+                    id: item.id || `search-${Math.random()}`,
+                    type,
+                    data
+                } as FeedItem;
+            });
+        }
+
+        console.warn('SearchService: No se reconoce la estructura de la respuesta', response);
+        return [];
+    }
+
+    private inferType(item: any): 'image' | 'music' {
+        return (!!item.embedUrl || item.type === 'music') ? 'music' : 'image';
+    }
+
+    private buildData(item: any, type: 'image' | 'music'): any {
+        if (type === 'music') {
+            return {
+                id: item.id || `music-${Math.random()}`,
+                name: item.name || item.title || 'Música',
+                embedUrl: item.embedUrl || item.url || '',
+                type: item.type || 'lofi',
+                description: item.description || ''
+            } as MusicTrack;
+        } else {
+            return {
+                id: item.id || `img-${Math.random()}`,
+                url: item.url || item.imageUrl || '',
+                title: item.title || item.name || 'Imagen',
+                category: item.category || 'art',
+                height: item.height || (Math.floor(Math.random() * (400 - 200 + 1)) + 200)
+            } as CosmosImage;
+        }
     }
 }
 

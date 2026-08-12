@@ -73,7 +73,7 @@ import { SearchService } from '../../../services/search.service';
       @if (selectedItem?.type === 'music') {
         <div class="dialog-content music-content">
           <iframe
-            [src]="safeEmbed(asTrack(selectedItem?.data).embedUrl)"
+            [src]="safeEmbed(getEmbedUrl(asTrack(selectedItem?.data).embedUrl))"
             allow="autoplay; encrypted-media"
             allowfullscreen
             style="width: 100%; height: 400px; border: none; border-radius: 8px;"
@@ -153,6 +153,20 @@ export class FlowFeedComponent implements OnInit {
 
   asImage(d: unknown): CosmosImage { return d as CosmosImage; }
   asTrack(d: unknown): MusicTrack { return d as MusicTrack; }
+
+  getEmbedUrl(url: string): string {
+    if (!url) return '';
+    if (url.includes('/embed/')) return url;
+    const watchMatch = url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/);
+    if (watchMatch) {
+      return `https://www.youtube.com/embed/${watchMatch[1]}`;
+    }
+    const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+    if (shortMatch) {
+      return `https://www.youtube.com/embed/${shortMatch[1]}`;
+    }
+    return url;
+  }
 
   safeEmbed(url: string | undefined): SafeResourceUrl {
     if (!url) return '';
