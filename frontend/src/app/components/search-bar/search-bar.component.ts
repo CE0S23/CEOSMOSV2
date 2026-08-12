@@ -25,11 +25,8 @@ export class SearchBarComponent implements OnInit {
             debounceTime(300),
             distinctUntilChanged()
         ).subscribe(query => {
-            if (query && query.trim().length > 0) {
-                this.performSearch(query.trim());
-            } else {
-                this.clearResults();
-            }
+            const safeQuery = query || '';
+            this.performSearch(safeQuery.trim());
         });
     }
 
@@ -56,10 +53,8 @@ export class SearchBarComponent implements OnInit {
 
     setFilter(filter: 'all' | 'images' | 'music'): void {
         this.selectedFilter = filter;
-        const currentQuery = this.searchControl.value;
-        if (currentQuery && currentQuery.trim().length > 0) {
-            this.performSearch(currentQuery.trim());
-        }
+        const currentQuery = this.searchControl.value || '';
+        this.performSearch(currentQuery.trim());
     }
 
     clearSearch(): void {

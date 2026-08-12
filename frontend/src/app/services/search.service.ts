@@ -110,6 +110,8 @@ export class SearchService {
      * Calcular la relevancia de un item basado en la query
      */
     private calculateRelevance(query: string, ...fields: string[]): number {
+        if (!query || query.trim() === '') return 1;
+
         let relevance = 0;
 
         fields.forEach((field, index) => {
