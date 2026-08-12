@@ -19,22 +19,25 @@ export class SearchService {
 
     search(query: string, filter: 'all' | 'images' | 'music' = 'all'): Observable<FeedItem[]> {
         console.log('🚀 SearchService: search() called with query:', query, 'filter:', filter);
+        
         if (!query || query.trim() === '') {
+            console.log('🚀 SearchService: query vacía, limpiando estado');
             this.searchState.clearResults();
             return of([]);
         }
 
         let params = new HttpParams();
         params = params.set('q', query.trim());
-        
         if (filter !== 'all') {
             params = params.set('type', filter === 'images' ? 'image' : 'music');
         }
 
         return this.http.get<any>('/api/search', { params }).pipe(
-            map(response => {
+            map((response) => {
+                console.log('🚀 SearchService: Respuesta del backend:', response);
                 const media = response?.media;
                 if (media && Array.isArray(media) && media.length > 0) {
+                    console.log('🚀 SearchService: Backend devolvió', media.length, 'resultados');
                     const results = media.map((item: any) => {
                         const type = this.inferType(item);
                         const data = this.buildData(item, type);
@@ -47,14 +50,17 @@ export class SearchService {
                     this.searchState.setResults(results);
                     return results;
                 }
-                console.warn('SearchService: Backend sin resultados, usando fallback local');
+                // Fallback local
+                console.warn('🚀 SearchService: Backend sin resultados, usando fallback local');
                 const localResults = this.localSearch(query.trim(), filter);
+                console.log('🚀 SearchService: Fallback local devolvió', localResults.length, 'resultados');
                 this.searchState.setResults(localResults);
                 return localResults;
             }),
-            catchError(error => {
-                console.error('SearchService: Error en la petición, usando fallback local', error);
+            catchError((error) => {
+                console.error('🚀 SearchService: Error en petición, usando fallback local', error);
                 const localResults = this.localSearch(query.trim(), filter);
+                console.log('🚀 SearchService: Fallback local (error) devolvió', localResults.length, 'resultados');
                 this.searchState.setResults(localResults);
                 return of(localResults);
             })
@@ -64,8 +70,14 @@ export class SearchService {
     private localSearch(query: string, filter: 'all' | 'images' | 'music'): FeedItem[] {
         console.log('🔎 SearchService: localSearch called with query:', query, 'filter:', filter);
         const allItems = this.feedDataService.getFeedSnapshot();
-        console.log('📚 SearchService: Items disponibles en feedSnapshot:', allItems.length);
+        console.log('📚 SearchService: Items en feedSnapshot:', allItems.length);
         
+        if (!allItems || allItems.length === 0) {
+            console.warn('🔎 SearchService: No hay items en feedSnapshot');
+            return [];
+        }
+
+        // Filtro por tipo
         let filtered = allItems;
         if (filter === 'images') {
             filtered = filtered.filter(item => item.type === 'image');
@@ -73,8 +85,9 @@ export class SearchService {
             filtered = filtered.filter(item => item.type === 'music');
         }
 
+        // Filtrar por texto
         const lowerQuery = query.toLowerCase();
-        return filtered.filter(item => {
+        const results = filtered.filter(item => {
             const data = item.data;
             if (item.type === 'image') {
                 const title = (data as CosmosImage).title?.toLowerCase() || '';
@@ -88,6 +101,9 @@ export class SearchService {
             }
             return false;
         });
+
+        console.log('🔎 SearchService: Resultados filtrados:', results.length);
+        return results;
     }
 
     private inferType(item: any): 'image' | 'music' {
