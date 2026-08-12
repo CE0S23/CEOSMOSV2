@@ -15,6 +15,8 @@ import { Subject, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, catchError, takeUntil } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { SearchService } from '../../services/search.service';
+import { SearchStateService } from '../../core/services/search-state.service';
 
 export interface ApiSearchResult {
   id: string;
@@ -37,6 +39,8 @@ export class SearchBarComponent implements OnInit, OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
+  private readonly searchService = inject(SearchService);
+  private readonly searchState = inject(SearchStateService);
 
   readonly searchControl = new FormControl('');
   readonly results = signal<ApiSearchResult[]>([]);
@@ -107,6 +111,15 @@ export class SearchBarComponent implements OnInit, OnDestroy {
         this.results.set(mapped.slice(0, 8));
         this.showDropdown.set(mapped.length > 0);
         this.activeIndex.set(-1);
+
+        // Publicar resultados en el feed a través de SearchService + SearchStateService
+        console.log('🔍 NavbarSearchBar: publicando búsqueda al feed, query:', query);
+        this.searchService.search(query, 'all').subscribe({
+          next: (feedResults) => {
+            console.log('📦 NavbarSearchBar: feed actualizado con', feedResults.length, 'resultados');
+          },
+          error: (err) => console.error('❌ NavbarSearchBar: error publicando al feed', err)
+        });
       });
   }
 
@@ -135,6 +148,8 @@ export class SearchBarComponent implements OnInit, OnDestroy {
     this.results.set([]);
     this.showDropdown.set(false);
     this.activeIndex.set(-1);
+    // Limpiar resultados del feed
+    this.searchState.clearResults();
   }
 
   @HostListener('document:keydown', ['$event'])
