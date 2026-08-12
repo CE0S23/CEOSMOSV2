@@ -73,7 +73,33 @@
 
 .search-status {
   text-align: center;
-  padding: 2rem;
+  padding: 20px;
   font-size: 1.2rem;
   color: rgba(255, 255, 255, 0.7);
+
+  .spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    border-top-color: #007bff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  &.empty {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.test-btn {
+  background: rgba(255, 193, 7, 0.2) !important;
+  border-color: rgba(255, 193, 7, 0.5) !important;
+  color: #ffc107 !important;
 }

@@ -29,11 +29,20 @@ import { SearchStateService } from '../../../core/services/search-state.service'
         class="filter-btn"
         [class.active]="currentFilter === 'music'" 
         (click)="setFilter('music')">Videos</button>
+      <button 
+        class="filter-btn test-btn"
+        (click)="testSearch()">🧪 Buscar "nature"</button>
     </div>
 
     @if (isSearching) {
       <div class="search-status">
-        <p>🔍 Buscando...</p>
+        <span class="spinner"></span> Buscando...
+      </div>
+    }
+
+    @if (!isSearching && searchResultsEmpty) {
+      <div class="search-status empty">
+        <span>😕 No se encontraron resultados para tu búsqueda.</span>
       </div>
     }
 
@@ -111,6 +120,7 @@ export class FlowFeedComponent implements OnInit, OnDestroy {
   filteredItems: FeedItem[] = [];
   currentFilter: FeedFilter = 'all';
   isSearching = false;
+  searchResultsEmpty = false;
 
   ngOnInit() {
     this.allItems = this.feedService.feed();
@@ -130,12 +140,13 @@ export class FlowFeedComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.searchState.results$.subscribe(results => {
         console.log('📦 FlowFeedComponent: Resultados de búsqueda recibidos:', results?.length);
+        this.isSearching = false;
         if (results && results.length > 0) {
           this.filteredItems = results;
-          this.isSearching = false;
+          this.searchResultsEmpty = false;
         } else {
+          this.searchResultsEmpty = this.searchState.hasResults() === false && this.isSearching === false;
           this.applyFilter();
-          this.isSearching = false;
         }
       })
     );
@@ -164,6 +175,29 @@ export class FlowFeedComponent implements OnInit, OnDestroy {
       this.filteredItems = this.allItems.filter(i => i.type === 'music');
     }
     console.log('🎯 FlowFeedComponent: applyFilter, items mostrados:', this.filteredItems.length);
+  }
+
+  testSearch() {
+    console.log('🧪 FlowFeedComponent: testSearch() disparado');
+    this.isSearching = true;
+    this.searchResultsEmpty = false;
+    this.searchService.search('nature', 'all').subscribe({
+      next: (results) => {
+        console.log('🧪 FlowFeedComponent: testSearch resultados:', results.length);
+        this.isSearching = false;
+        if (results.length > 0) {
+          this.filteredItems = results;
+          this.searchResultsEmpty = false;
+        } else {
+          this.searchResultsEmpty = true;
+          this.filteredItems = this.allItems;
+        }
+      },
+      error: () => {
+        this.isSearching = false;
+        this.searchResultsEmpty = true;
+      }
+    });
   }
 
   openDetail(item: FeedItem) {
