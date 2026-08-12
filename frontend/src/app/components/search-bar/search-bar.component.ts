@@ -1,7 +1,8 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { SearchService, SearchResult } from '../../services/search.service';
+import { SearchService } from '../../services/search.service';
+import { FeedItem } from '../../core/models/feed-item.model';
 
 @Component({
     selector: 'app-search-bar',
@@ -10,12 +11,12 @@ import { SearchService, SearchResult } from '../../services/search.service';
 })
 export class SearchBarComponent implements OnInit {
     searchControl = new FormControl('');
-    searchResults: SearchResult[] = [];
+    searchResults: FeedItem[] = [];
     isSearching = false;
     showResults = false;
     selectedFilter: 'all' | 'images' | 'music' = 'all';
 
-    @Output() resultSelected = new EventEmitter<SearchResult>();
+    @Output() resultSelected = new EventEmitter<FeedItem>();
 
     constructor(private searchService: SearchService) { }
 
@@ -32,14 +33,14 @@ export class SearchBarComponent implements OnInit {
 
     performSearch(query: string): void {
         this.isSearching = true;
-        this.searchService.search(query, this.selectedFilter).subscribe((results: SearchResult[]) => {
+        this.searchService.search(query, this.selectedFilter).subscribe((results: FeedItem[]) => {
             this.searchResults = results;
             this.showResults = true;
             this.isSearching = false;
         });
     }
 
-    selectResult(result: SearchResult): void {
+    selectResult(result: FeedItem): void {
         this.resultSelected.emit(result);
         this.showResults = false;
         this.searchControl.setValue('');

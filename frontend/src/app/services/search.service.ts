@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { FeedItem, CosmosImage, MusicTrack } from '../core/models/feed-item.model';
 import { FeedDataService } from '../core/services/feed-data.service';
+import { SearchStateService } from '../core/services/search-state.service';
 
 @Injectable({
     providedIn: 'root'
@@ -12,11 +13,13 @@ export class SearchService {
 
     constructor(
         private http: HttpClient,
-        private feedDataService: FeedDataService
+        private feedDataService: FeedDataService,
+        private searchState: SearchStateService
     ) { }
 
     search(query: string, filter: 'all' | 'images' | 'music' = 'all'): Observable<FeedItem[]> {
         if (!query || query.trim() === '') {
+            this.searchState.clearResults();
             return of([]);
         }
 
@@ -31,7 +34,7 @@ export class SearchService {
             map(response => {
                 const media = response?.media;
                 if (media && Array.isArray(media) && media.length > 0) {
-                    return media.map((item: any) => {
+                    const results = media.map((item: any) => {
                         const type = this.inferType(item);
                         const data = this.buildData(item, type);
                         return {
@@ -40,13 +43,19 @@ export class SearchService {
                             data
                         } as FeedItem;
                     });
+                    this.searchState.setResults(results);
+                    return results;
                 }
                 console.warn('SearchService: Backend sin resultados, usando fallback local');
-                return this.localSearch(query.trim(), filter);
+                const localResults = this.localSearch(query.trim(), filter);
+                this.searchState.setResults(localResults);
+                return localResults;
             }),
             catchError(error => {
                 console.error('SearchService: Error en la petición, usando fallback local', error);
-                return of(this.localSearch(query.trim(), filter));
+                const localResults = this.localSearch(query.trim(), filter);
+                this.searchState.setResults(localResults);
+                return of(localResults);
             })
         );
     }

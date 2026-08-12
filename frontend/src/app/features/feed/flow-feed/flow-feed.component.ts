@@ -1,5 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { FeedDataService } from '../../../core/services/feed-data.service';
 import { FeedCardComponent } from '../feed-card/feed-card.component';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -8,7 +9,7 @@ import { FeedItem, CosmosImage, MusicTrack } from '../../../core/models/feed-ite
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FilterService, FeedFilter } from '../../../core/services/filter.service';
 import { SearchService } from '../../../services/search.service';
-
+import { SearchStateService } from '../../../core/services/search-state.service';
 @Component({
   selector: 'app-flow-feed',
   standalone: true,
@@ -86,11 +87,14 @@ import { SearchService } from '../../../services/search.service';
   `,
   styleUrl: './flow-feed.component.scss',
 })
-export class FlowFeedComponent implements OnInit {
+export class FlowFeedComponent implements OnInit, OnDestroy {
   readonly feedService = inject(FeedDataService);
   private sanitizer = inject(DomSanitizer);
   private filterService = inject(FilterService);
   private searchService = inject(SearchService);
+  private searchState = inject(SearchStateService);
+
+  private subscriptions = new Subscription();
 
   dialogVisible = false;
   selectedItem: FeedItem | null = null;
@@ -103,10 +107,28 @@ export class FlowFeedComponent implements OnInit {
   ngOnInit() {
     this.allItems = this.feedService.feed();
     
-    this.filterService.filter$.subscribe(filter => {
-      this.currentFilter = filter;
-      this.applyFilter();
-    });
+    this.subscriptions.add(
+      this.filterService.filter$.subscribe(filter => {
+        this.currentFilter = filter;
+        if (!this.searchState.hasResults()) {
+          this.applyFilter();
+        }
+      })
+    );
+
+    this.subscriptions.add(
+      this.searchState.results$.subscribe(results => {
+        if (results && results.length > 0) {
+          this.filteredItems = results;
+        } else {
+          this.applyFilter();
+        }
+      })
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   setFilter(filter: FeedFilter) {
