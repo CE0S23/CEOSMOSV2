@@ -106,10 +106,12 @@ export class FlowFeedComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.allItems = this.feedService.feed();
+    console.log('📚 FlowFeedComponent: Feed cargado, items:', this.allItems.length);
     
     this.subscriptions.add(
       this.filterService.filter$.subscribe(filter => {
         this.currentFilter = filter;
+        console.log('🔍 FlowFeedComponent: Filter changed to:', filter);
         if (!this.searchState.hasResults()) {
           this.applyFilter();
         }
@@ -118,9 +120,11 @@ export class FlowFeedComponent implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.searchState.results$.subscribe(results => {
+        console.log('📦 FlowFeedComponent: Resultados de búsqueda recibidos:', results?.length);
         if (results && results.length > 0) {
           this.filteredItems = results;
         } else {
+          console.log('📦 FlowFeedComponent: Sin resultados, restaurando feed normal');
           this.applyFilter();
         }
       })
@@ -143,6 +147,22 @@ export class FlowFeedComponent implements OnInit, OnDestroy {
     } else if (this.currentFilter === 'music') {
       this.filteredItems = this.allItems.filter(i => i.type === 'music');
     }
+    console.log('🎯 FlowFeedComponent: applyFilter, items mostrados:', this.filteredItems.length);
+  }
+
+  onSearchEvent(event: { query: string; filter: 'all' | 'images' | 'music' }): void {
+    console.log('🔍 FlowFeedComponent: onSearchEvent recibido:', event);
+    if (!event.query || event.query.trim() === '') {
+      this.searchState.clearResults();
+      return;
+    }
+    this.searchService.search(event.query, event.filter).subscribe({
+      next: (results) => {
+        console.log('📦 FlowFeedComponent: Resultados directos del servicio:', results.length);
+        this.searchState.setResults(results);
+      },
+      error: (err) => console.error('❌ FlowFeedComponent: Error en búsqueda directa:', err)
+    });
   }
 
   openDetail(item: FeedItem) {

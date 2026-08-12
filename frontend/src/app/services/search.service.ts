@@ -18,6 +18,7 @@ export class SearchService {
     ) { }
 
     search(query: string, filter: 'all' | 'images' | 'music' = 'all'): Observable<FeedItem[]> {
+        console.log('🚀 SearchService: search() called with query:', query, 'filter:', filter);
         if (!query || query.trim() === '') {
             this.searchState.clearResults();
             return of([]);
@@ -61,7 +62,9 @@ export class SearchService {
     }
 
     private localSearch(query: string, filter: 'all' | 'images' | 'music'): FeedItem[] {
+        console.log('🔎 SearchService: localSearch called with query:', query, 'filter:', filter);
         const allItems = this.feedDataService.getFeedSnapshot();
+        console.log('📚 SearchService: Items disponibles en feedSnapshot:', allItems.length);
         
         let filtered = allItems;
         if (filter === 'images') {

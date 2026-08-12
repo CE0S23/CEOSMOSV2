@@ -1,87 +1,56 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { SearchService } from '../../services/search.service';
 import { FeedItem } from '../../core/models/feed-item.model';
+import { SearchStateService } from '../../core/services/search-state.service';
 
 @Component({
-    selector: 'app-search-bar',
-    templateUrl: './search-bar.component.html',
-    styleUrls: ['./search-bar.component.scss']
+  selector: 'app-search-bar',
+  templateUrl: './search-bar.component.html',
+  styleUrls: ['./search-bar.component.scss']
 })
-export class SearchBarComponent implements OnInit {
-    searchControl = new FormControl('');
-    searchResults: FeedItem[] = [];
-    isSearching = false;
-    showResults = false;
-    selectedFilter: 'all' | 'images' | 'music' = 'all';
+export class SearchBarComponent {
+  @Output() searchEvent = new EventEmitter<{ query: string; filter: 'all' | 'images' | 'music' }>();
+  
+  query = '';
+  filter: 'all' | 'images' | 'music' = 'all';
 
-    @Output() resultSelected = new EventEmitter<FeedItem>();
+  constructor(
+    private searchService: SearchService,
+    private searchState: SearchStateService
+  ) {}
 
-    constructor(private searchService: SearchService) { }
-
-    ngOnInit(): void {
-        // Escuchar cambios en el input con debounce para evitar búsquedas excesivas
-        this.searchControl.valueChanges.pipe(
-            debounceTime(300),
-            distinctUntilChanged()
-        ).subscribe(query => {
-            const safeQuery = query || '';
-            this.performSearch(safeQuery.trim());
-        });
+  onSearch(): void {
+    console.log('🔍 SearchBarComponent: onSearch() called with query:', this.query, 'filter:', this.filter);
+    
+    if (!this.query || this.query.trim() === '') {
+      this.searchState.clearResults();
+      this.searchEvent.emit({ query: '', filter: this.filter });
+      return;
     }
 
-    performSearch(query: string): void {
-        this.isSearching = true;
-        this.searchService.search(query, this.selectedFilter).subscribe((results: FeedItem[]) => {
-            this.searchResults = results;
-            this.showResults = true;
-            this.isSearching = false;
-        });
-    }
+    // Emitir evento para que el feed reaccione
+    this.searchEvent.emit({ query: this.query.trim(), filter: this.filter });
 
-    selectResult(result: FeedItem): void {
-        this.resultSelected.emit(result);
-        this.showResults = false;
-        this.searchControl.setValue('');
-    }
+    // Llamar al servicio (que ya actualiza el estado compartido)
+    this.searchService.search(this.query.trim(), this.filter).subscribe({
+      next: (results) => {
+        console.log('📦 SearchBarComponent: Resultados recibidos del servicio:', results.length);
+        // El servicio ya llama a searchState.setResults, pero por si acaso lo hacemos aquí también
+        this.searchState.setResults(results);
+      },
+      error: (err) => {
+        console.error('❌ SearchBarComponent: Error en búsqueda:', err);
+        this.searchState.clearResults();
+      }
+    });
+  }
 
-    clearResults(): void {
-        this.searchResults = [];
-        this.showResults = false;
-        this.isSearching = false;
+  onFilterChange(filter: 'all' | 'images' | 'music'): void {
+    this.filter = filter;
+    console.log('🔍 SearchBarComponent: filter changed to:', filter);
+    // Si hay query, volver a buscar con el nuevo filtro
+    if (this.query && this.query.trim() !== '') {
+      this.onSearch();
     }
-
-    setFilter(filter: 'all' | 'images' | 'music'): void {
-        this.selectedFilter = filter;
-        const currentQuery = this.searchControl.value || '';
-        this.performSearch(currentQuery.trim());
-    }
-
-    clearSearch(): void {
-        this.searchControl.setValue('');
-        this.clearResults();
-    }
-
-    getResultIcon(type: string): string {
-        switch (type) {
-            case 'image':
-                return 'image';
-            case 'music':
-                return 'music_note';
-            default:
-                return 'search';
-        }
-    }
-
-    getResultTypeLabel(type: string): string {
-        switch (type) {
-            case 'image':
-                return 'Imagen';
-            case 'music':
-                return 'Música';
-            default:
-                return 'Resultado';
-        }
-    }
+  }
 }

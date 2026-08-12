@@ -1,88 +1,13 @@
-<div class="search-bar-container">
-    <!-- Barra de búsqueda principal -->
-    <div class="search-bar glassmorphism">
-        <mat-icon class="search-icon">search</mat-icon>
-
-        <input type="text" [formControl]="searchControl" class="search-input"
-            placeholder="Buscar imágenes o música para tu ambiente..." aria-label="Buscar contenido"
-            (focus)="showResults = searchResults.length > 0" />
-
-        <button *ngIf="searchControl.value" mat-icon-button class="clear-button" (click)="clearSearch()"
-            aria-label="Limpiar búsqueda">
-            <mat-icon>close</mat-icon>
-        </button>
-
-        <div class="loading-spinner" *ngIf="isSearching">
-            <mat-icon class="spinning">autorenew</mat-icon>
-        </div>
-    </div>
-
-    <!-- Filtros de búsqueda -->
-    <div class="search-filters">
-        <button mat-button class="filter-chip" [class.active]="selectedFilter === 'all'" (click)="setFilter('all')">
-            <mat-icon>dashboard</mat-icon>
-            Todo
-        </button>
-        <button mat-button class="filter-chip" [class.active]="selectedFilter === 'images'"
-            (click)="setFilter('images')">
-            <mat-icon>image</mat-icon>
-            Imágenes
-        </button>
-        <button mat-button class="filter-chip" [class.active]="selectedFilter === 'music'" (click)="setFilter('music')">
-            <mat-icon>music_note</mat-icon>
-            Música
-        </button>
-    </div>
-
-    <!-- Resultados de búsqueda -->
-    <div class="search-results glassmorphism" *ngIf="showResults && searchResults.length > 0">
-        <div class="results-header">
-            <h3 class="results-title">
-                {{ searchResults.length }} resultado{{ searchResults.length !== 1 ? 's' : '' }} encontrado{{
-                searchResults.length !== 1 ? 's' : '' }}
-            </h3>
-            <button mat-icon-button (click)="clearResults()" aria-label="Cerrar resultados">
-                <mat-icon>close</mat-icon>
-            </button>
-        </div>
-
-        <div class="results-list">
-            <div class="result-item" *ngFor="let result of searchResults" (click)="selectResult(result)" tabindex="0"
-                role="button">
-                <div class="result-icon" [class]="result.type">
-                    <mat-icon>{{ getResultIcon(result.type) }}</mat-icon>
-                </div>
-
-                <div class="result-content">
-                    <div class="result-header">
-                        <h4 class="result-title">{{ result.title }}</h4>
-                        <span class="result-type-badge">{{ getResultTypeLabel(result.type) }}</span>
-                    </div>
-                    <p class="result-description" *ngIf="result.description">
-                        {{ result.description }}
-                    </p>
-                    <div class="result-meta">
-                        <span class="result-category">
-                            <mat-icon>label</mat-icon>
-                            {{ result.category }}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Preview de imagen si está disponible -->
-                <div class="result-preview" *ngIf="result.type === 'image' && result.url">
-                    <img [src]="result.url" [alt]="result.title" loading="lazy" />
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Estado vacío -->
-    <div class="search-results glassmorphism" *ngIf="showResults && searchResults.length === 0 && !isSearching">
-        <div class="empty-state">
-            <mat-icon class="empty-icon">search_off</mat-icon>
-            <h3 class="empty-title">No se encontraron resultados</h3>
-            <p class="empty-description">Intenta con otros términos de búsqueda</p>
-        </div>
-    </div>
+<div class="search-bar">
+  <input 
+    type="text" 
+    placeholder="Buscar..." 
+    [(ngModel)]="query"
+    (input)="onSearch()"
+  />
+  <div class="filters">
+    <button (click)="onFilterChange('all')" [class.active]="filter === 'all'">Todo</button>
+    <button (click)="onFilterChange('images')" [class.active]="filter === 'images'">Imágenes</button>
+    <button (click)="onFilterChange('music')" [class.active]="filter === 'music'">Videos</button>
+  </div>
 </div>
