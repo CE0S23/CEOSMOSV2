@@ -10,6 +10,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FilterService, FeedFilter } from '../../../core/services/filter.service';
 import { SearchService } from '../../../services/search.service';
 import { SearchStateService } from '../../../core/services/search-state.service';
+
 @Component({
   selector: 'app-flow-feed',
   standalone: true,
@@ -29,6 +30,12 @@ import { SearchStateService } from '../../../core/services/search-state.service'
         [class.active]="currentFilter === 'music'" 
         (click)="setFilter('music')">Videos</button>
     </div>
+
+    @if (isSearching) {
+      <div class="search-status">
+        <p>🔍 Buscando...</p>
+      </div>
+    }
 
     <section class="flow-feed" aria-label="Flow Feed">
       <div class="masonry-grid">
@@ -103,11 +110,13 @@ export class FlowFeedComponent implements OnInit, OnDestroy {
   allItems: FeedItem[] = [];
   filteredItems: FeedItem[] = [];
   currentFilter: FeedFilter = 'all';
+  isSearching = false;
 
   ngOnInit() {
     this.allItems = this.feedService.feed();
     console.log('📚 FlowFeedComponent: Feed cargado, items:', this.allItems.length);
-    
+    this.applyFilter();
+
     this.subscriptions.add(
       this.filterService.filter$.subscribe(filter => {
         this.currentFilter = filter;
@@ -123,10 +132,17 @@ export class FlowFeedComponent implements OnInit, OnDestroy {
         console.log('📦 FlowFeedComponent: Resultados de búsqueda recibidos:', results?.length);
         if (results && results.length > 0) {
           this.filteredItems = results;
+          this.isSearching = false;
         } else {
-          console.log('📦 FlowFeedComponent: Sin resultados, restaurando feed normal');
           this.applyFilter();
+          this.isSearching = false;
         }
+      })
+    );
+
+    this.subscriptions.add(
+      this.searchState.searching$.subscribe(active => {
+        this.isSearching = active;
       })
     );
   }
@@ -148,21 +164,6 @@ export class FlowFeedComponent implements OnInit, OnDestroy {
       this.filteredItems = this.allItems.filter(i => i.type === 'music');
     }
     console.log('🎯 FlowFeedComponent: applyFilter, items mostrados:', this.filteredItems.length);
-  }
-
-  onSearchEvent(event: { query: string; filter: 'all' | 'images' | 'music' }): void {
-    console.log('🔍 FlowFeedComponent: onSearchEvent recibido:', event);
-    if (!event.query || event.query.trim() === '') {
-      this.searchState.clearResults();
-      return;
-    }
-    this.searchService.search(event.query, event.filter).subscribe({
-      next: (results) => {
-        console.log('📦 FlowFeedComponent: Resultados directos del servicio:', results.length);
-        this.searchState.setResults(results);
-      },
-      error: (err) => console.error('❌ FlowFeedComponent: Error en búsqueda directa:', err)
-    });
   }
 
   openDetail(item: FeedItem) {
@@ -215,5 +216,3 @@ export class FlowFeedComponent implements OnInit, OnDestroy {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url + '?autoplay=1&mute=0');
   }
 }
-
-

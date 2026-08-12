@@ -6,25 +6,23 @@ import { FeedItem, CosmosImage, MusicTrack } from '../core/models/feed-item.mode
 import { FeedDataService } from '../core/services/feed-data.service';
 import { SearchStateService } from '../core/services/search-state.service';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class SearchService {
-
     constructor(
         private http: HttpClient,
         private feedDataService: FeedDataService,
         private searchState: SearchStateService
-    ) { }
+    ) {}
 
     search(query: string, filter: 'all' | 'images' | 'music' = 'all'): Observable<FeedItem[]> {
-        console.log('🚀 SearchService: search() called with query:', query, 'filter:', filter);
-        
+        console.log('🚀 SearchService: search() called', { query, filter });
+
         if (!query || query.trim() === '') {
-            console.log('🚀 SearchService: query vacía, limpiando estado');
             this.searchState.clearResults();
             return of([]);
         }
+
+        this.searchState.setSearching(true);
 
         let params = new HttpParams();
         params = params.set('q', query.trim());
@@ -53,14 +51,12 @@ export class SearchService {
                 // Fallback local
                 console.warn('🚀 SearchService: Backend sin resultados, usando fallback local');
                 const localResults = this.localSearch(query.trim(), filter);
-                console.log('🚀 SearchService: Fallback local devolvió', localResults.length, 'resultados');
                 this.searchState.setResults(localResults);
                 return localResults;
             }),
             catchError((error) => {
                 console.error('🚀 SearchService: Error en petición, usando fallback local', error);
                 const localResults = this.localSearch(query.trim(), filter);
-                console.log('🚀 SearchService: Fallback local (error) devolvió', localResults.length, 'resultados');
                 this.searchState.setResults(localResults);
                 return of(localResults);
             })
@@ -68,10 +64,8 @@ export class SearchService {
     }
 
     private localSearch(query: string, filter: 'all' | 'images' | 'music'): FeedItem[] {
-        console.log('🔎 SearchService: localSearch called with query:', query, 'filter:', filter);
+        console.log('🔎 SearchService: localSearch', { query, filter });
         const allItems = this.feedDataService.getFeedSnapshot();
-        console.log('📚 SearchService: Items en feedSnapshot:', allItems.length);
-        
         if (!allItems || allItems.length === 0) {
             console.warn('🔎 SearchService: No hay items en feedSnapshot');
             return [];
@@ -85,7 +79,24 @@ export class SearchService {
             filtered = filtered.filter(item => item.type === 'music');
         }
 
-        // Filtrar por texto
+        // Si el filtro deja 0 elementos, devolver todos los del tipo
+        if (filtered.length === 0) {
+            console.warn('🔎 SearchService: Filtro dejó 0, devolviendo todos los del tipo');
+            if (filter === 'images') {
+                filtered = allItems.filter(item => item.type === 'image');
+            } else if (filter === 'music') {
+                filtered = allItems.filter(item => item.type === 'music');
+            } else {
+                filtered = allItems;
+            }
+        }
+
+        // Si no hay query, devolver los filtrados (sin buscar texto)
+        if (!query || query.trim() === '') {
+            return filtered;
+        }
+
+        // Buscar por texto
         const lowerQuery = query.toLowerCase();
         const results = filtered.filter(item => {
             const data = item.data;
@@ -102,14 +113,17 @@ export class SearchService {
             return false;
         });
 
-        console.log('🔎 SearchService: Resultados filtrados:', results.length);
+        console.log('🔎 SearchService: Resultados filtrados por texto:', results.length);
+        // Si no hay coincidencias, devolver los filtrados para no mostrar vacío
+        if (results.length === 0) {
+            console.warn('🔎 SearchService: Sin coincidencias, devolviendo todos los filtrados');
+            return filtered;
+        }
         return results;
     }
 
     private inferType(item: any): 'image' | 'music' {
-        if (item.type) {
-            return item.type === 'music' ? 'music' : 'image';
-        }
+        if (item.type) return item.type === 'music' ? 'music' : 'image';
         if (item.embedUrl) return 'music';
         if (item.url) return 'image';
         return 'image';
