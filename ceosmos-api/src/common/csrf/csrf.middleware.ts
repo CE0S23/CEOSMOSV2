@@ -34,6 +34,15 @@ export function csrfMiddleware(req: Request, res: Response, next: NextFunction) 
     return next();
   }
 
+  // CSRF solo afecta a la autenticación por cookie (el navegador la envía sola).
+  // Un cliente nativo que se autentica con «Authorization: Bearer» y no envía la
+  // cookie de sesión no es atacable por CSRF; se le exime de la doble cookie.
+  const bearer = /^Bearer\s+\S+$/i.test(req.headers.authorization ?? '');
+  const sessionCookie = (req.cookies ?? {})['Authentication'];
+  if (bearer && !sessionCookie) {
+    return next();
+  }
+
   const cookieToken = (req.cookies ?? {})[CSRF_COOKIE] as string | undefined;
   const headerToken = req.headers[CSRF_HEADER] as string | undefined;
 

@@ -8,7 +8,7 @@ export class UpdatePreferencesDto {
 
   @IsOptional()
   @IsNumber()
-  @Min(15)
+  @Min(5) // la app móvil ofrece sesiones de 5 minutos
   @Max(180)
   flowTimeDefault?: number;
 }

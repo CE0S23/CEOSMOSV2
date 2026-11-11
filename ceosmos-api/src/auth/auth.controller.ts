@@ -9,6 +9,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Audit } from '../common/audit/audit.decorator';
@@ -46,6 +47,8 @@ function setCsrfCookie(res: Response) {
   res.cookie(CSRF_COOKIE, generateCsrfToken(), CSRF_COOKIE_OPTIONS);
 }
 
+// Límite estricto contra fuerza bruta (el global es más amplio).
+@Throttle({ default: { limit: 10, ttl: 60000 } })
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

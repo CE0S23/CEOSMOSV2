@@ -39,6 +39,11 @@ model User {
   mediaItems  MediaItem[]
   tasks       Task[]
   auditLogs   AuditLog[]
+
+  // CEOSMOS Móvil Integral
+  focusSessions FocusSession[]
+  favorites     Favorite[]
+  linkedDevices LinkedDevice[]
 }
 
 model Passkey {
@@ -162,4 +167,76 @@ model Task {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, status])
+}
+
+// ============================================
+// CEOSMOS Móvil Integral (sesiones de enfoque, favoritos y dispositivos)
+// ============================================
+
+enum FocusMode {
+  FOCUS
+  RELAX
+  INSPIRE
+}
+
+/// Sesión de enfoque (distinta de Session, que es la sesión de autenticación).
+model FocusSession {
+  id              String    @id @default(uuid())
+  userId          String
+  /// Contenido usado: id del catálogo incluido en la app o "media:<MediaItem.id>".
+  contentKey      String
+  mode            FocusMode
+  startedAt       DateTime
+  endedAt         DateTime
+  durationSeconds Int
+  targetMinutes   Int
+  completed       Boolean   @default(false)
+  /// Datos variables (p. ej. métricas del wearable durante la sesión).
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startedAt])
+}
+
+model Favorite {
+  id         String   @id @default(uuid())
+  userId     String
+  contentKey String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contentKey])
+}
+
+enum DeviceType {
+  WEARABLE
+  TV
+}
+
+enum DeviceTransport {
+  TCP
+  BLE
+}
+
+model LinkedDevice {
+  id            String          @id @default(uuid())
+  userId        String
+  name          String
+  type          DeviceType
+  transport     DeviceTransport @default(TCP)
+  /// host:puerto para TCP o dirección MAC para BLE.
+  address       String
+  /// Configuración variable del dispositivo (JSONB).
+  configuration Json?
+  lastSeenAt    DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type, address])
+  @@index([userId])
 }

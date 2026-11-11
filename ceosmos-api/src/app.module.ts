@@ -15,14 +15,19 @@ import { AdminModule } from './admin/admin.module';
 import { AuditModule } from './common/audit/audit.module';
 import { AuditInterceptor } from './common/audit/audit.interceptor';
 import { SearchModule } from './search/search.module';
+import { FocusSessionsModule } from './focus-sessions/focus-sessions.module';
+import { FavoritesModule } from './favorites/favorites.module';
+import { DevicesModule } from './devices/devices.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot([
+      // Límite general por IP. Las rutas de /auth conservan el límite estricto de
+      // 10/min (AuthController); un cliente móvil hace varias lecturas al abrir.
       {
         ttl: 60000,
-        limit: 10,
+        limit: 120,
       },
     ]),
     PrismaModule,
@@ -35,6 +40,9 @@ import { SearchModule } from './search/search.module';
     AdminModule,
     AuditModule,
     SearchModule,
+    FocusSessionsModule,
+    FavoritesModule,
+    DevicesModule,
   ],
   controllers: [AppController],
   providers: [
