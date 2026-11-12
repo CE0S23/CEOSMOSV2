@@ -6,7 +6,7 @@ import { BadRequestException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import { FocusSessionsService } from './focus-sessions.service';
+import { CAMPOS_HISTORIAL, FocusSessionsService } from './focus-sessions.service';
 import {
   CreateFocusSessionDto,
   ListFocusSessionsQueryDto,
@@ -37,6 +37,8 @@ describe('FocusSessionsService (white box)', () => {
       create: jest.fn(),
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      aggregate: jest.fn(),
     },
   };
   const service = new FocusSessionsService(prisma as any);
@@ -135,14 +137,46 @@ describe('FocusSessionsService (white box)', () => {
     expect(prisma.focusSession.findUnique).not.toHaveBeenCalled();
   });
 
-  it('list: límite por defecto 50, ordenado por startedAt desc y filtrado por usuario', async () => {
+  it('list: límite por defecto 50, ordenado por startedAt desc (id desempata), filtrado por usuario y solo los campos del historial (P12-O1)', async () => {
     prisma.focusSession.findMany.mockResolvedValue([]);
     await service.list('u1');
     expect(prisma.focusSession.findMany).toHaveBeenCalledWith({
       where: { userId: 'u1' },
-      orderBy: { startedAt: 'desc' },
+      orderBy: [{ startedAt: 'desc' }, { id: 'desc' }],
       take: 50,
+      select: CAMPOS_HISTORIAL,
     });
+    expect(CAMPOS_HISTORIAL).not.toHaveProperty('userId');
+    expect(CAMPOS_HISTORIAL).not.toHaveProperty('createdAt');
+  });
+
+  it('list con cursor: keyset por startedAt (rango del índice) y desempate por id, sin OFFSET (P12-O1)', async () => {
+    const ref = new Date('2026-11-10T10:00:00.000Z');
+    prisma.focusSession.findFirst.mockResolvedValue({ startedAt: ref });
+    prisma.focusSession.findMany.mockResolvedValue([]);
+    await service.list('u1', 20, 'fs-ultima');
+    expect(prisma.focusSession.findFirst).toHaveBeenCalledWith({ where: { id: 'fs-ultima', userId: 'u1' }, select: { startedAt: true } });
+    expect(prisma.focusSession.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        take: 20,
+        where: { userId: 'u1', startedAt: { lte: ref }, OR: [{ startedAt: { lt: ref } }, { id: { lt: 'fs-ultima' } }] },
+      }),
+    );
+  });
+
+  it('list con cursor de otro usuario o inexistente: lista vacía, no revela datos (P12-O1)', async () => {
+    prisma.focusSession.findFirst.mockResolvedValue(null);
+    prisma.focusSession.findMany.mockClear();
+    expect(await service.list('u1', 20, 'ajena')).toEqual([]);
+    expect(prisma.focusSession.findMany).not.toHaveBeenCalled();
+  });
+
+  it('resumen: cuenta y suma en la base, solo del usuario (P12-O1)', async () => {
+    prisma.focusSession.aggregate.mockResolvedValue({ _count: { _all: 45 }, _sum: { durationSeconds: 13500 } });
+    expect(await service.resumen('u1')).toEqual({ sesiones: 45, segundos: 13500 });
+    expect(prisma.focusSession.aggregate).toHaveBeenCalledWith(expect.objectContaining({ where: { userId: 'u1' } }));
+    prisma.focusSession.aggregate.mockResolvedValue({ _count: { _all: 0 }, _sum: { durationSeconds: null } });
+    expect(await service.resumen('u1')).toEqual({ sesiones: 0, segundos: 0 });
   });
 });
 

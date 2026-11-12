@@ -24,27 +24,38 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<User> {
+  /**
+   * Se ejecuta en CADA petición autenticada. Antes hacía dos consultas (sesión por
+   * token y luego usuario por id); P12-O1 las une en una sola con JOIN, de modo que
+   * cada petición cuesta un viaje menos a PostgreSQL y una deserialización menos de
+   * Prisma. Además exige que la sesión pertenezca al usuario del JWT y ya no carga
+   * `passwordHash` en `req.user` (ningún controlador lo usa).
+   */
+  async validate(payload: JwtPayload): Promise<UsuarioAutenticado> {
     const hashedToken = createHash('sha256')
       .update(payload.sessionToken)
       .digest('hex');
 
-    const session = await this.prisma.session.findUnique({
-      where: { token: hashedToken },
-    });
+    const filas = await this.prisma.$queryRaw<FilaSesionUsuario[]>`
+      SELECT s."expiresAt" AS "sessionExpiresAt",
+             u.id, u.email, u.username, u."emailVerified", u.role::text AS role, u.active,
+             u."failedLoginAttempts", u."lockedUntil", u."createdAt", u."updatedAt", u."deletedAt"
+      FROM "Session" s
+      JOIN "User" u ON u.id = s."userId"
+      WHERE s.token = ${hashedToken} AND s."userId" = ${payload.userId}
+      LIMIT 1`;
+    const fila = filas[0];
 
-    if (!session || session.expiresAt < new Date()) {
+    // Misma semántica que antes: sesión inexistente o vencida → 401.
+    if (!fila || fila.sessionExpiresAt < new Date()) {
       throw new UnauthorizedException('Session not found or expired');
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: payload.userId },
-    });
-
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    }
-
+    const { sessionExpiresAt: _vence, ...user } = fila;
     return user;
   }
 }
+
+/** Usuario que queda en `req.user` (sin el hash de la contraseña). */
+export type UsuarioAutenticado = Omit<User, 'passwordHash'>;
+type FilaSesionUsuario = UsuarioAutenticado & { sessionExpiresAt: Date };

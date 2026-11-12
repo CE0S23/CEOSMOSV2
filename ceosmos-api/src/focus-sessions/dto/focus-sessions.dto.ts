@@ -76,4 +76,9 @@ export class ListFocusSessionsQueryDto {
   @Min(1)
   @Max(100)
   limit?: number;
+
+  /** P12-O1: id de la última sesión recibida; la página siguiente empieza después. */
+  @IsOptional()
+  @Matches(/^[A-Za-z0-9-]{1,80}$/)
+  cursor?: string;
 }

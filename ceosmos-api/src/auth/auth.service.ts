@@ -134,16 +134,23 @@ export class AuthService {
     const isValid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!isValid) {
       console.error(`[AuthService] Login failed: Password mismatch for ${dto.email}`);
-      const newFailedCount = user.failedLoginAttempts + 1;
-      const shouldLock = newFailedCount >= MAX_FAILED_ATTEMPTS;
-
-      await this.prisma.user.update({
-        where: { id: user.id },
-        data: {
-          failedLoginAttempts: shouldLock ? 0 : newFailedCount,
-          lockedUntil: shouldLock ? new Date(Date.now() + LOCK_DURATION_MS) : user.lockedUntil,
-        },
-      });
+      // P12-D01: antes se leía el contador, se sumaba 1 en JS y se escribía el valor
+      // («leer y luego escribir»). Con intentos simultáneos todos leían el mismo número
+      // y se perdían incrementos, así que la cuenta no se bloqueaba a los 5 fallos. Ahora
+      // el incremento y el bloqueo se hacen en UNA sentencia: PostgreSQL bloquea la fila
+      // y cada UPDATE parte del valor que dejó el anterior.
+      const [fila] = await this.prisma.$queryRaw<{ failedLoginAttempts: number }[]>`
+        UPDATE "User" SET
+          "failedLoginAttempts" = CASE WHEN "failedLoginAttempts" + 1 >= ${MAX_FAILED_ATTEMPTS}
+                                       THEN 0 ELSE "failedLoginAttempts" + 1 END,
+          "lockedUntil" = CASE WHEN "failedLoginAttempts" + 1 >= ${MAX_FAILED_ATTEMPTS}
+                               THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => ${LOCK_DURATION_MS / 1000})
+                               ELSE "lockedUntil" END
+        WHERE id = ${user.id}
+        RETURNING "failedLoginAttempts"`;
+      // Tras el incremento, 0 solo puede significar que este intento bloqueó la cuenta.
+      const shouldLock = fila.failedLoginAttempts === 0;
+      const newFailedCount = shouldLock ? MAX_FAILED_ATTEMPTS : fila.failedLoginAttempts;
 
       if (shouldLock) {
         throw new UnauthorizedException(

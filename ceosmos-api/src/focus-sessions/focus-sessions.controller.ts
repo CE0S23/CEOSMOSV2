@@ -27,7 +27,13 @@ export class FocusSessionsController {
 
   @Get()
   list(@Req() req: RequestWithUser, @Query() query: ListFocusSessionsQueryDto) {
-    return this.service.list(req.user.id, query.limit);
+    return this.service.list(req.user.id, query.limit, query.cursor);
+  }
+
+  /** P12-O1: número de sesiones y segundos totales, calculados en la base. */
+  @Get('resumen')
+  resumen(@Req() req: RequestWithUser) {
+    return this.service.resumen(req.user.id);
   }
 
   @Post()
