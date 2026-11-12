@@ -7,13 +7,17 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { MailModule } from '../mail/mail.module';
 import { SessionsModule } from '../sessions/sessions.module';
+import { jwtSecret } from './jwt-secret';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET ?? 'changeme',
-      signOptions: { expiresIn: '7d' },
+    // registerAsync: el secreto se lee al crear el módulo, con el .env ya cargado (P11-D06).
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        secret: jwtSecret(),
+        signOptions: { expiresIn: '7d' },
+      }),
     }),
     MailModule,
     SessionsModule,

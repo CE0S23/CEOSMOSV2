@@ -6,12 +6,32 @@ import {
   IsISO8601,
   IsObject,
   IsOptional,
+  IsUUID,
   Matches,
   Max,
   Min,
+  ValidateBy,
+  ValidationOptions,
 } from 'class-validator';
 
 export const CONTENT_KEY = /^[A-Za-z0-9:_-]{1,80}$/;
+
+/** Tamaño máximo de metadata serializada (P11-D04). La app envía ~300 bytes. */
+export const METADATA_MAX_BYTES = 4096;
+
+export function MaxJsonBytes(max: number, options?: ValidationOptions) {
+  return ValidateBy(
+    {
+      name: 'maxJsonBytes',
+      validator: {
+        validate: (v: unknown) =>
+          v == null || Buffer.byteLength(JSON.stringify(v)) <= max,
+        defaultMessage: () => `metadata no puede superar ${max} bytes`,
+      },
+    },
+    options,
+  );
+}
 
 export class CreateFocusSessionDto {
   @Matches(CONTENT_KEY, { message: 'contentKey inválido' })
@@ -40,7 +60,13 @@ export class CreateFocusSessionDto {
 
   @IsOptional()
   @IsObject()
+  @MaxJsonBytes(METADATA_MAX_BYTES)
   metadata?: Record<string, unknown>;
+
+  /** UUID v4 que genera la app una sola vez por sesión: los reintentos no duplican (P11-D01). */
+  @IsOptional()
+  @IsUUID('4', { message: 'clientId debe ser un UUID v4' })
+  clientId?: string;
 }
 
 export class ListFocusSessionsQueryDto {

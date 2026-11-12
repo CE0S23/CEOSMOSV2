@@ -1,8 +1,19 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FocusSessionsService } from './focus-sessions.service';
-import { CreateFocusSessionDto, ListFocusSessionsQueryDto } from './dto/focus-sessions.dto';
+import {
+  CreateFocusSessionDto,
+  ListFocusSessionsQueryDto,
+} from './dto/focus-sessions.dto';
 
 interface RequestWithUser extends Request {
   user: { id: string };

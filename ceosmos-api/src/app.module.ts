@@ -27,7 +27,8 @@ import { DevicesModule } from './devices/devices.module';
       // 10/min (AuthController); un cliente móvil hace varias lecturas al abrir.
       {
         ttl: 60000,
-        limit: 120,
+        // THROTTLE_LIMIT solo se sube en el entorno local de pruebas de carga.
+        limit: Number(process.env.THROTTLE_LIMIT) || 120,
       },
     ]),
     PrismaModule,

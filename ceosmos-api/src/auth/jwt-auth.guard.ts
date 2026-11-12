@@ -1,4 +1,8 @@
-import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
 
@@ -10,9 +14,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = any>(err: any, user: TUser, info: any): TUser {
+  handleRequest<TUser = any>(err: any, user: TUser): TUser {
     if (err || !user) {
-      throw err ?? new UnauthorizedException(info?.message ?? 'Unauthorized');
+      // P11-D05: no se devuelve el mensaje interno de passport-jwt ("jwt malformed",
+      // "invalid signature", "jwt expired"); los errores propios (sesión revocada) sí.
+      throw err ?? new UnauthorizedException('Unauthorized');
     }
     return user;
   }

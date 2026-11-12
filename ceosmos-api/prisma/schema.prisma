@@ -70,6 +70,9 @@ model Session {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Login (borra las sesiones previas) y /users/me/sessions buscan por usuario (P11-D03).
+  @@index([userId])
 }
 
 model EmailToken {
@@ -110,6 +113,9 @@ model MediaItem {
   createdAt  DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Biblioteca por usuario ordenada por fecha (P11-D03).
+  @@index([userId, createdAt])
 }
 
 enum MediaType {
@@ -193,11 +199,14 @@ model FocusSession {
   completed       Boolean   @default(false)
   /// Datos variables (p. ej. métricas del wearable durante la sesión).
   metadata        Json?
+  /// UUID generado por la app antes del primer envío: hace idempotente el reintento (P11-D01).
+  clientId        String?
   createdAt       DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, startedAt])
+  @@unique([userId, clientId])
 }
 
 model Favorite {

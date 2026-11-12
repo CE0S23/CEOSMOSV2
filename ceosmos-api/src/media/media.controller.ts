@@ -8,6 +8,8 @@ import {
   Query,
   UseGuards,
   Req,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { MediaService } from './media.service';
@@ -32,18 +34,13 @@ export class MediaController {
   }
 
   @Post()
-  async addMedia(
-    @Req() req: RequestWithUser,
-    @Body() data: CreateMediaDto,
-  ) {
+  async addMedia(@Req() req: RequestWithUser, @Body() data: CreateMediaDto) {
     return this.mediaService.addMedia(req.user.id, data);
   }
 
   @Delete(':id')
-  async deleteMedia(
-    @Req() req: RequestWithUser,
-    @Param('id') id: string,
-  ) {
+  @HttpCode(HttpStatus.NO_CONTENT) // igual que /devices (P11-D05)
+  async deleteMedia(@Req() req: RequestWithUser, @Param('id') id: string) {
     return this.mediaService.deleteMedia(req.user.id, id);
   }
 }

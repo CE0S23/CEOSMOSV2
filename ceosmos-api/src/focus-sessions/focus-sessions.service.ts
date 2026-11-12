@@ -15,6 +15,12 @@ export class FocusSessionsService {
     });
   }
 
+  /**
+   * Crea la sesión. Si trae clientId y ya existe una con el mismo (userId, clientId),
+   * devuelve la existente en lugar de duplicarla (P11-D01: reintento tras perder la
+   * respuesta). La carrera entre dos reintentos simultáneos la resuelve el índice
+   * UNIQUE: el que pierde recibe P2002 y devuelve la fila ganadora.
+   */
   async create(userId: string, dto: CreateFocusSessionDto) {
     const startedAt = new Date(dto.startedAt);
     const endedAt = new Date(dto.endedAt);
@@ -25,20 +31,47 @@ export class FocusSessionsService {
       throw new BadRequestException('endedAt no puede estar en el futuro');
     }
     if (dto.durationSeconds > dto.targetMinutes * 60) {
-      throw new BadRequestException('durationSeconds supera la duración objetivo');
+      throw new BadRequestException(
+        'durationSeconds supera la duración objetivo',
+      );
     }
-    return this.prisma.focusSession.create({
-      data: {
-        userId,
-        contentKey: dto.contentKey,
-        mode: dto.mode,
-        startedAt,
-        endedAt,
-        durationSeconds: dto.durationSeconds,
-        targetMinutes: dto.targetMinutes,
-        completed: dto.completed,
-        metadata: (dto.metadata ?? undefined) as Prisma.InputJsonValue | undefined,
-      },
+    if (dto.clientId) {
+      const previa = await this.existente(userId, dto.clientId);
+      if (previa) return previa;
+    }
+    try {
+      return await this.prisma.focusSession.create({
+        data: {
+          userId,
+          clientId: dto.clientId,
+          contentKey: dto.contentKey,
+          mode: dto.mode,
+          startedAt,
+          endedAt,
+          durationSeconds: dto.durationSeconds,
+          targetMinutes: dto.targetMinutes,
+          completed: dto.completed,
+          metadata: (dto.metadata ?? undefined) as
+            | Prisma.InputJsonValue
+            | undefined,
+        },
+      });
+    } catch (e) {
+      if (
+        dto.clientId &&
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      ) {
+        const ganadora = await this.existente(userId, dto.clientId);
+        if (ganadora) return ganadora;
+      }
+      throw e;
+    }
+  }
+
+  private existente(userId: string, clientId: string) {
+    return this.prisma.focusSession.findUnique({
+      where: { userId_clientId: { userId, clientId } },
     });
   }
 }

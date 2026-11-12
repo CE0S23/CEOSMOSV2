@@ -4,6 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { createHash } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from '@prisma/client';
+import { jwtSecret } from './jwt-secret';
 
 interface JwtPayload {
   userId: string;
@@ -19,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         (request: any) => request?.cookies?.Authentication ?? null,
       ]),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET ?? 'changeme',
+      secretOrKey: jwtSecret(), // falla al arrancar si no hay secreto válido (P11-D06)
     });
   }
 
