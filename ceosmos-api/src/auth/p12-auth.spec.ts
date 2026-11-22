@@ -64,7 +64,7 @@ describe('AuthService.login: intentos fallidos simultáneos (P12-D01)', () => {
 
   it('el incremento y el bloqueo se hacen en UNA sentencia UPDATE … RETURNING (sin leer-y-escribir)', async () => {
     prisma.$queryRaw.mockResolvedValue([{ failedLoginAttempts: 3 }]);
-    await expect(servicio().login({ email: 'a@b.c', password: 'mala' } as any, {} as any)).rejects.toThrow('2 attempt(s) remaining');
+    await expect(servicio().login({ email: 'a@b.c', password: 'mala' } as any, {} as any)).rejects.toThrow(/^Invalid credentials$/); // Blindaje: sin intentos restantes (enumeración)
     expect(prisma.user.update).not.toHaveBeenCalled();
     const sql = textoSql(prisma.$queryRaw.mock.calls[0]);
     expect(sql).toMatch(/"failedLoginAttempts" = CASE WHEN "failedLoginAttempts" \+ 1 >= \?/);

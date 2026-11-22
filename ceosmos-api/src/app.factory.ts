@@ -20,7 +20,11 @@ export async function createApp(): Promise<NestExpressApplication> {
 
   app.use(
     helmet({
-      contentSecurityPolicy: false, // CSP is handled by Vercel headers
+      // Blindaje: la API solo devuelve JSON; nada se puede cargar ni enmarcar.
+      contentSecurityPolicy: {
+        useDefaults: false,
+        directives: { defaultSrc: ["'none'"], frameAncestors: ["'none'"] },
+      },
       crossOriginEmbedderPolicy: false,
       hsts: {
         maxAge: 63072000,
@@ -48,7 +52,8 @@ export async function createApp(): Promise<NestExpressApplication> {
       if (!origin || allowed.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error(`CORS blocked: ${origin}`));
+        // Blindaje: sin cabeceras CORS el navegador bloquea; antes respondía 500.
+        callback(null, false);
       }
     },
     credentials: true,

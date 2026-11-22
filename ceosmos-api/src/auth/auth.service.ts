@@ -158,9 +158,9 @@ export class AuthService {
         );
       }
 
-      const attemptsLeft = MAX_FAILED_ATTEMPTS - newFailedCount;
       throw new UnauthorizedException(
-        `Invalid credentials. ${attemptsLeft} attempt(s) remaining before lock.`,
+        // Blindaje: sin el número de intentos, la respuesta no revela si la cuenta existe.
+        'Invalid credentials',
       );
     }
 
