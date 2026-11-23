@@ -37,6 +37,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
         exception.status === 413
           ? 'Request body too large'
           : 'Invalid request body';
+    } else if (
+      exception instanceof RangeError &&
+      /call stack/i.test(exception.message)
+    ) {
+      // Blindaje: JSON anidado miles de niveles desbordaba la pila al validar (500).
+      status = HttpStatus.BAD_REQUEST;
+      message = 'Request body too deeply nested';
     } else {
       this.logger.error(
         exception instanceof Error ? exception.stack : String(exception),

@@ -20,6 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         (request: any) => request?.cookies?.Authentication ?? null,
       ]),
       ignoreExpiration: false,
+      algorithms: ['HS256'], // Blindaje: no acepta HS384/HS512 ni 'none'
       secretOrKey: jwtSecret(), // falla al arrancar si no hay secreto válido (P11-D06)
     });
   }
@@ -32,6 +33,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * `passwordHash` en `req.user` (ningún controlador lo usa).
    */
   async validate(payload: JwtPayload): Promise<UsuarioAutenticado> {
+    // Blindaje: una carga útil con otra forma es un token inválido (401), no un 500.
+    if (
+      typeof payload?.userId !== 'string' ||
+      typeof payload?.sessionToken !== 'string'
+    ) {
+      throw new UnauthorizedException('Invalid token');
+    }
     const hashedToken = createHash('sha256')
       .update(payload.sessionToken)
       .digest('hex');
