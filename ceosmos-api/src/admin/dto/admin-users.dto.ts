@@ -1,3 +1,4 @@
+import { SinEspacios } from '../../common/validators/sin-espacios';
 import {
   IsEmail,
   IsString,
@@ -16,11 +17,13 @@ export const ADMIN_PASSWORD_MESSAGE =
 
 export class CreateAdminUserDto {
   @IsEmail()
+  @SinEspacios('email')
   email: string;
 
   @IsString()
   @MinLength(3)
   @MaxLength(30)
+  @SinEspacios('username')
   username: string;
 
   @IsString()
@@ -29,6 +32,7 @@ export class CreateAdminUserDto {
   @Matches(ADMIN_PASSWORD_PATTERN, {
     message: ADMIN_PASSWORD_MESSAGE,
   })
+  @SinEspacios('password')
   password: string;
 
   @IsOptional()
@@ -39,12 +43,14 @@ export class CreateAdminUserDto {
 export class UpdateAdminUserDto {
   @IsOptional()
   @IsEmail()
+  @SinEspacios('email')
   email?: string;
 
   @IsOptional()
   @IsString()
   @MinLength(3)
   @MaxLength(30)
+  @SinEspacios('username')
   username?: string;
 }
 
@@ -60,6 +66,7 @@ export class UpdateUserPasswordDto {
   @Matches(ADMIN_PASSWORD_PATTERN, {
     message: ADMIN_PASSWORD_MESSAGE,
   })
+  @SinEspacios('newPassword')
   newPassword: string;
 }
 

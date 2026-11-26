@@ -1,3 +1,4 @@
+import { SinEspacios } from '../../common/validators/sin-espacios';
 import {
   IsEmail,
   IsObject,
@@ -15,11 +16,13 @@ export const PASSWORD_MESSAGE =
 
 export class RegisterDto {
   @IsEmail()
+  @SinEspacios('email')
   email: string;
 
   @IsString()
   @MinLength(3)
   @MaxLength(30)
+  @SinEspacios('username')
   username: string;
 
   @IsString()
@@ -28,25 +31,30 @@ export class RegisterDto {
   @Matches(PASSWORD_PATTERN, {
     message: PASSWORD_MESSAGE,
   })
+  @SinEspacios('password')
   password: string;
 }
 
 export class LoginDto {
   @IsEmail()
+  @SinEspacios('email')
   email: string;
 
   @IsString()
   @MinLength(1)
+  @SinEspacios('password')
   password: string;
 }
 
 export class WebAuthnRegisterOptionsDto {
   @IsEmail()
+  @SinEspacios('email')
   email: string;
 }
 
 export class WebAuthnRegisterVerifyDto {
   @IsEmail()
+  @SinEspacios('email')
   email: string;
 
   @IsString()
@@ -58,11 +66,13 @@ export class WebAuthnRegisterVerifyDto {
 
 export class WebAuthnLoginOptionsDto {
   @IsEmail()
+  @SinEspacios('email')
   email: string;
 }
 
 export class WebAuthnLoginVerifyDto {
   @IsEmail()
+  @SinEspacios('email')
   email: string;
 
   @IsString()
@@ -74,27 +84,32 @@ export class WebAuthnLoginVerifyDto {
 
 export class VerifyEmailDto {
   @IsEmail()
+  @SinEspacios('email')
   email: string;
 
   @IsString()
   @MinLength(6)
   @MaxLength(6)
+  @SinEspacios('code')
   code: string;
 }
 
 export class ResendVerificationDto {
   @IsEmail()
+  @SinEspacios('email')
   email: string;
 }
 
 export class ForgotPasswordDto {
   @IsEmail()
+  @SinEspacios('email')
   email: string;
 }
 
 export class ResetPasswordDto {
   @IsString()
   @MinLength(1)
+  @SinEspacios('token')
   token: string;
 
   @IsString()
@@ -103,5 +118,6 @@ export class ResetPasswordDto {
   @Matches(PASSWORD_PATTERN, {
     message: PASSWORD_MESSAGE,
   })
+  @SinEspacios('newPassword')
   newPassword: string;
 }
