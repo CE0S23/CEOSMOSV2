@@ -89,7 +89,7 @@ export class AuditLogQueryDto {
   userId?: string;
 
   @IsOptional()
-  @IsEnum(['LOGIN', 'LOGOUT', 'PASSWORD_CHANGE', 'USER_CREATE', 'USER_DELETE', 'ROLE_CHANGE'])
+  @IsEnum(['LOGIN', 'LOGOUT', 'PASSWORD_CHANGE', 'USER_CREATE', 'USER_DELETE', 'ROLE_CHANGE', 'USER_STATUS_CHANGE'])
   action?: string;
 
   @IsOptional()

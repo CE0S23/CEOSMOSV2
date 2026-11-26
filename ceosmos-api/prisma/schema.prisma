@@ -135,6 +135,7 @@ enum AuditAction {
   USER_CREATE
   USER_DELETE
   ROLE_CHANGE
+  USER_STATUS_CHANGE
 }
 
 model AuditLog {

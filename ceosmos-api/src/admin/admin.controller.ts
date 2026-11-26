@@ -82,6 +82,8 @@ export class AdminUsersController {
   }
 
   @Patch(':id/status')
+  // 1.4.0: bloquear y desbloquear quedan en la bitácora (antes no se registraban).
+  @Audit('USER_STATUS_CHANGE')
   async setStatus(
     @Param('id') targetId: string,
     @Body() dto: UpdateUserStatusDto,

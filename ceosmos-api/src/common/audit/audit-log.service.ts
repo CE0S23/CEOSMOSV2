@@ -8,7 +8,8 @@ export type AuditAction =
   | 'PASSWORD_CHANGE'
   | 'USER_CREATE'
   | 'USER_DELETE'
-  | 'ROLE_CHANGE';
+  | 'ROLE_CHANGE'
+  | 'USER_STATUS_CHANGE';
 
 export const AUDIT_ACTIONS: AuditAction[] = [
   'LOGIN',
@@ -17,6 +18,7 @@ export const AUDIT_ACTIONS: AuditAction[] = [
   'USER_CREATE',
   'USER_DELETE',
   'ROLE_CHANGE',
+  'USER_STATUS_CHANGE',
 ];
 
 @Injectable()
